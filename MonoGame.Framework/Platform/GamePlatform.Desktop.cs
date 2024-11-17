@@ -10,10 +10,11 @@ namespace Microsoft.Xna.Framework
     {
         internal static GamePlatform PlatformCreate(Game game)
         {
-#if DESKTOPGL || ANGLE
-            return new SdlGamePlatform(game);
-#elif WINDOWS && DIRECTX
+            // (WCS Edit) For desktop platforms, set macro control check priority to DirectX instead of OpenGL.
+#if WINDOWS && DIRECTX
             return new MonoGame.Framework.WinFormsGamePlatform(game);
+#elif DESKTOPGL || ANGLE
+            return new SdlGamePlatform(game);
 #endif
         }
    }
