@@ -42,13 +42,13 @@ namespace Microsoft.Xna.Framework.Audio
             e.CurveDistanceScaler = SoundEffect.DistanceScale;
             e.DopplerScaler = SoundEffect.DopplerScale;
             e.ChannelCount = _effect._format.Channels;
-            
+
             //stereo channel
             if (e.ChannelCount > 1)
             {
                 e.ChannelRadius = 0;
                 e.ChannelAzimuths = _defaultChannelAzimuths;
-             }
+            }
 
             // Convert from XNA Listener to a SharpDX Listener
             var l = ToDXListener(listener);
@@ -60,7 +60,7 @@ namespace Microsoft.Xna.Framework.Audio
             // Number of output channels.
             var dstChannelCount = SoundEffect.MasterVoice.VoiceDetails.InputChannelCount;
 
-            // XNA supports distance attenuation and doppler.            
+            // XNA supports distance attenuation and doppler.
             var dpsSettings = SoundEffect.Device3D.Calculate(l, e, CalculateFlags.Matrix | CalculateFlags.Doppler, srcChannelCount, dstChannelCount);
 
             // Apply Volume settings (from distance attenuation) ...
@@ -82,17 +82,17 @@ namespace Microsoft.Xna.Framework.Audio
             var up = emitter.Up;
 
             // From MSDN:
-            //  X3DAudio uses a left-handed Cartesian coordinate system, 
-            //  with values on the x-axis increasing from left to right, on the y-axis from bottom to top, 
-            //  and on the z-axis from near to far. 
-            //  Azimuths are measured clockwise from a given reference direction. 
+            //  X3DAudio uses a left-handed Cartesian coordinate system,
+            //  with values on the x-axis increasing from left to right, on the y-axis from bottom to top,
+            //  and on the z-axis from near to far.
+            //  Azimuths are measured clockwise from a given reference direction.
             //
             // From MSDN:
-            //  The XNA Framework uses a right-handed coordinate system, 
-            //  with the positive z-axis pointing toward the observer when the positive x-axis is pointing to the right, 
-            //  and the positive y-axis is pointing up. 
+            //  The XNA Framework uses a right-handed coordinate system,
+            //  with the positive z-axis pointing toward the observer when the positive x-axis is pointing to the right,
+            //  and the positive y-axis is pointing up.
             //
-            // Programmer Notes:         
+            // Programmer Notes:
             //  According to this description the z-axis (forward vector) is inverted between these two coordinate systems.
             //  Therefore, we need to negate the z component of any position/directions/velocity values.
 
@@ -121,17 +121,17 @@ namespace Microsoft.Xna.Framework.Audio
             var up = listener.Up;
 
             // From MSDN:
-            //  X3DAudio uses a left-handed Cartesian coordinate system, 
-            //  with values on the x-axis increasing from left to right, on the y-axis from bottom to top, 
-            //  and on the z-axis from near to far. 
-            //  Azimuths are measured clockwise from a given reference direction. 
+            //  X3DAudio uses a left-handed Cartesian coordinate system,
+            //  with values on the x-axis increasing from left to right, on the y-axis from bottom to top,
+            //  and on the z-axis from near to far.
+            //  Azimuths are measured clockwise from a given reference direction.
             //
             // From MSDN:
-            //  The XNA Framework uses a right-handed coordinate system, 
-            //  with the positive z-axis pointing toward the observer when the positive x-axis is pointing to the right, 
-            //  and the positive y-axis is pointing up. 
+            //  The XNA Framework uses a right-handed coordinate system,
+            //  with the positive z-axis pointing toward the observer when the positive x-axis is pointing to the right,
+            //  and the positive y-axis is pointing up.
             //
-            // Programmer Notes:         
+            // Programmer Notes:
             //  According to this description the z-axis (forward vector) is inverted between these two coordinate systems.
             //  Therefore, we need to negate the z component of any position/directions/velocity values.
 
@@ -161,7 +161,7 @@ namespace Microsoft.Xna.Framework.Audio
         {
             if (_voice != null && SoundEffect.MasterVoice != null)
             {
-                // Choose the correct buffer depending on if we are looped.            
+                // Choose the correct buffer depending on if we are looped.
                 var buffer = _loop ? _effect._loopedBuffer : _effect._buffer;
 
                 if (_voice.State.BuffersQueued > 0)
@@ -213,7 +213,7 @@ namespace Microsoft.Xna.Framework.Audio
                         _voice.Stop((int)PlayFlags.Tails);
                 }
             }
-            
+
             _paused = false;
         }
 
@@ -307,22 +307,30 @@ namespace Microsoft.Xna.Framework.Audio
 
             // NOTE: This is copy of what XAudio2.SemitonesToFrequencyRatio() does
             // which avoids the native call and is actually more accurate.
-             var pitch = MathF.Pow(2.0f, value);
-             _voice.SetFrequencyRatio(pitch);
+            var pitch = MathF.Pow(2.0f, value);
+            _voice.SetFrequencyRatio(pitch);
         }
 
         private SoundState PlatformGetState()
         {
-            // If no voice or no buffers queued the sound is stopped.
-            if (_voice == null || SoundEffect.MasterVoice == null || _voice.State.BuffersQueued == 0)
-                return SoundState.Stopped;
+            // (WCS Edit) Try catch is added.
+            try
+            {
+                // If no voice or no buffers queued the sound is stopped.
+                if (_voice == null || SoundEffect.MasterVoice == null || _voice.State.BuffersQueued == 0)
+                    return SoundState.Stopped;
 
-            // Because XAudio2 does not actually provide if a SourceVoice is Started / Stopped
-            // we have to save the "paused" state ourself.
-            if (_paused)
+                // Because XAudio2 does not actually provide if a SourceVoice is Started / Stopped
+                // we have to save the "paused" state ourself.
+                if (_paused)
+                    return SoundState.Paused;
+
+                return SoundState.Playing;
+            }
+            catch
+            {
                 return SoundState.Paused;
-
-            return SoundState.Playing;
+            }
         }
 
         private void PlatformSetVolume(float value)
@@ -344,7 +352,7 @@ namespace Microsoft.Xna.Framework.Audio
                 _voice.SetOutputVoices(new VoiceSendDescriptor(SoundEffect.MasterVoice));
             else
             {
-                _voice.SetOutputVoices( new VoiceSendDescriptor(SoundEffect.ReverbVoice), 
+                _voice.SetOutputVoices(new VoiceSendDescriptor(SoundEffect.ReverbVoice),
                                         new VoiceSendDescriptor(SoundEffect.MasterVoice));
             }
 
@@ -356,11 +364,11 @@ namespace Microsoft.Xna.Framework.Audio
             if (_voice == null || SoundEffect.MasterVoice == null)
                 return;
 
-            var filter = new FilterParameters 
+            var filter = new FilterParameters
             {
-                Frequency = XAudio2.CutoffFrequencyToRadians(frequency, _voice.VoiceDetails.InputSampleRate), 
-                OneOverQ = 1.0f / filterQ, 
-                Type = (FilterType)mode 
+                Frequency = XAudio2.CutoffFrequencyToRadians(frequency, _voice.VoiceDetails.InputSampleRate),
+                OneOverQ = 1.0f / filterQ,
+                Type = (FilterType)mode
             };
             _voice.SetFilterParameters(filter);
         }
@@ -371,7 +379,7 @@ namespace Microsoft.Xna.Framework.Audio
                 return;
 
             var filter = new FilterParameters { Frequency = 1.0f, OneOverQ = 1.0f, Type = FilterType.LowPassFilter };
-            _voice.SetFilterParameters(filter);            
+            _voice.SetFilterParameters(filter);
         }
 
         private void PlatformDispose(bool disposing)
