@@ -24,7 +24,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         [DataMember]
         public Vector3 Min;
-      
+
         /// <summary>
         ///   The maximum extent of this <see cref="BoundingBox"/>.
         /// </summary>
@@ -111,7 +111,7 @@ namespace Microsoft.Xna.Framework
         /// </returns>
         public ContainmentType Contains(BoundingFrustum frustum)
         {
-            //TODO: bad done here need a fix. 
+            //TODO: bad done here need a fix.
             //Because question is not frustum contain box but reverse and this is not the same
             int i;
             ContainmentType contained;
@@ -317,7 +317,7 @@ namespace Microsoft.Xna.Framework
             var minVec = MaxVector3;
             var maxVec = MinVector3;
             for (int i = index; i < count; i++)
-            {                
+            {
                 minVec.X = (minVec.X < points[i].X) ? minVec.X : points[i].X;
                 minVec.Y = (minVec.Y < points[i].Y) ? minVec.Y : points[i].Y;
                 minVec.Z = (minVec.Z < points[i].Z) ? minVec.Z : points[i].Z;
@@ -486,10 +486,10 @@ namespace Microsoft.Xna.Framework
         public Vector3[] GetCorners()
         {
             return new Vector3[] {
-                new Vector3(this.Min.X, this.Max.Y, this.Max.Z), 
+                new Vector3(this.Min.X, this.Max.Y, this.Max.Z),
                 new Vector3(this.Max.X, this.Max.Y, this.Max.Z),
-                new Vector3(this.Max.X, this.Min.Y, this.Max.Z), 
-                new Vector3(this.Min.X, this.Min.Y, this.Max.Z), 
+                new Vector3(this.Max.X, this.Min.Y, this.Max.Z),
+                new Vector3(this.Min.X, this.Min.Y, this.Max.Z),
                 new Vector3(this.Min.X, this.Max.Y, this.Min.Z),
                 new Vector3(this.Max.X, this.Max.Y, this.Min.Z),
                 new Vector3(this.Max.X, this.Min.Y, this.Min.Z),
@@ -807,6 +807,11 @@ namespace Microsoft.Xna.Framework
             min = Min;
             max = Max;
         }
+
+        /// <summary>
+        /// (WCS Edit) We need a length calculation helper.
+        /// </summary>
+        public readonly float CalculateLength() => Vector3.Distance(Min, Max);
 
         #endregion Public Methods
     }
