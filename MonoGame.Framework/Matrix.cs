@@ -1150,7 +1150,7 @@ namespace Microsoft.Xna.Framework
                 scales.X, 0f, 0f, 0f, 0f,
                 scales.Y, 0f, 0f, 0f, 0f,
                 scales.Z, 0f, 0f, 0f, 0f, 1f
-            )
+            );
 
         /// <summary>
         /// Creates a new <see cref="Matrix"/> that flattens geometry into a specified <see cref="Plane"/> as if casting a shadow from a specified light source.

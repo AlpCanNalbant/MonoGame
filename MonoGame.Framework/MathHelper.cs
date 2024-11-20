@@ -285,6 +285,6 @@ namespace Microsoft.Xna.Framework
         /// <param name="value">A value.</param>
         /// <returns><c>true</c> if <c>value</c> is powered by two; otherwise <c>false</c>.</returns>
         public static bool IsPowerOfTwo(int value)
-             => (value > 0f) && ((value & (value - 1f)) == 0f);
+             => (value > 0) && ((value & (value - 1)) == 0);
     }
 }
