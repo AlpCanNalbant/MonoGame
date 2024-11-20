@@ -21,9 +21,7 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public SpriteEffect(GraphicsDevice device)
             : base(device, EffectResource.SpriteEffect.Bytecode)
-        {
-            CacheEffectParameters();
-        }
+            => CacheEffectParameters();
 
         /// <summary>
         /// An optional matrix used to transform the sprite geometry. Uses <see cref="Matrix.Identity"/> if null.
@@ -35,27 +33,21 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         protected SpriteEffect(SpriteEffect cloneSource)
             : base(cloneSource)
-        {
-            CacheEffectParameters();
-        }
+            => CacheEffectParameters();
 
 
         /// <summary>
         /// Creates a clone of the current SpriteEffect instance.
         /// </summary>
         public override Effect Clone()
-        {
-            return new SpriteEffect(this);
-        }
+            => new SpriteEffect(this);
 
 
         /// <summary>
         /// Looks up shortcut references to our effect parameters.
         /// </summary>
         void CacheEffectParameters()
-        {
-            _matrixParam = Parameters["MatrixTransform"];
-        }
+            => _matrixParam = Parameters["MatrixTransform"];
 
         /// <summary>
         /// Lazily computes derived parameter values immediately before applying the effect.

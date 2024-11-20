@@ -12,21 +12,19 @@ namespace Microsoft.Xna.Framework.Graphics
     /// </summary>
     internal partial class EffectResource
     {
-        public static readonly EffectResource AlphaTestEffect = new EffectResource(AlphaTestEffectName);
-        public static readonly EffectResource BasicEffect = new EffectResource(BasicEffectName);
-        public static readonly EffectResource DualTextureEffect = new EffectResource(DualTextureEffectName);
-        public static readonly EffectResource EnvironmentMapEffect = new EffectResource(EnvironmentMapEffectName);
-        public static readonly EffectResource SkinnedEffect = new EffectResource(SkinnedEffectName);
-        public static readonly EffectResource SpriteEffect = new EffectResource(SpriteEffectName);
+        public static readonly EffectResource AlphaTestEffect = new(AlphaTestEffectName);
+        public static readonly EffectResource BasicEffect = new(BasicEffectName);
+        public static readonly EffectResource DualTextureEffect = new(DualTextureEffectName);
+        public static readonly EffectResource EnvironmentMapEffect = new(EnvironmentMapEffectName);
+        public static readonly EffectResource SkinnedEffect = new(SkinnedEffectName);
+        public static readonly EffectResource SpriteEffect = new(SpriteEffectName);
 
-        private readonly object _locker = new object();
+        private readonly object _locker = new();
         private readonly string _name;
         private volatile byte[] _bytecode;
 
         private EffectResource(string name)
-        {
-            _name = name;
-        }
+            => _name = name;
 
         public byte[] Bytecode
         {
@@ -42,11 +40,9 @@ namespace Microsoft.Xna.Framework.Graphics
                         var assembly = ReflectionHelpers.GetAssembly(typeof(EffectResource));
 
                         var stream = assembly.GetManifestResourceStream(_name);
-                        using (var ms = new MemoryStream())
-                        {
-                            stream.CopyTo(ms);
-                            _bytecode = ms.ToArray();
-                        }
+                        using var ms = new MemoryStream();
+                        stream.CopyTo(ms);
+                        _bytecode = ms.ToArray();
                     }
                 }
 

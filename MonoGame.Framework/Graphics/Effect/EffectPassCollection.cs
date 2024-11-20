@@ -11,9 +11,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private readonly EffectPass[] _passes;
 
         internal EffectPassCollection(EffectPass [] passes)
-        {
-            _passes = passes;
-        }
+            => _passes = passes;
 
         internal EffectPassCollection Clone(Effect effect)
         {
@@ -28,9 +26,7 @@ namespace Microsoft.Xna.Framework.Graphics
         /// Retrieves the <see cref="EffectPass"/> at the specified index in the collection.
         /// </summary>
         public EffectPass this[int index]
-        {
-            get { return _passes[index]; }
-        }
+            => _passes[index];
 
         /// <summary>
         /// Retrieves a <see cref="EffectPass"/> from the collection, given the name of the pass.
@@ -38,10 +34,10 @@ namespace Microsoft.Xna.Framework.Graphics
         /// <param name="name">The name of the pass to retrieve.</param>
         public EffectPass this[string name]
         {
-            get 
+            get
             {
                 // TODO: Add a name to pass lookup table.
-				foreach (var pass in _passes) 
+				foreach (var pass in _passes)
                 {
 					if (pass.Name == name)
 						return pass;
@@ -54,28 +50,20 @@ namespace Microsoft.Xna.Framework.Graphics
         /// Gets the number of elements contained in the collection.
         /// </summary>
         public int Count
-        {
-            get { return _passes.Length; }
-        }
+        =>  _passes.Length;
 
         /// <summary>
         /// Returns a <see cref="EffectPassCollection.Enumerator">EffectPassCollection.Enumerator</see>
         /// that can iterate through a collection.
         /// </summary>
         public Enumerator GetEnumerator()
-        {
-            return new Enumerator(_passes);
-        }
-            
+            => new(_passes);
+
         IEnumerator<EffectPass> IEnumerable<EffectPass>.GetEnumerator()
-        {
-            return ((IEnumerable<EffectPass>)_passes).GetEnumerator();
-        }
+            => ((IEnumerable<EffectPass>)_passes).GetEnumerator();
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return _passes.GetEnumerator();
-        }
+            => _passes.GetEnumerator();
 
         /// <summary>
         /// Enumerator to iterate through the <see cref="EffectPassCollection"/>
@@ -108,18 +96,16 @@ namespace Microsoft.Xna.Framework.Graphics
             }
 
             /// <inheritdoc/>
-            public EffectPass Current
-            {
-                get { return _current; }
-            }
+            public readonly EffectPass Current
+                => _current;
 
             /// <inheritdoc cref="IDisposable.Dispose()"/>
-            public void Dispose()
+            public readonly void Dispose()
             {
 
             }
 
-            object System.Collections.IEnumerator.Current
+            readonly object System.Collections.IEnumerator.Current
             {
                 get
                 {

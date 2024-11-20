@@ -27,14 +27,11 @@ namespace MonoGame.Framework
         }
 
         public override GameRunBehavior DefaultRunBehavior
-        {
-            get { return GameRunBehavior.Synchronous; }
-        }
+            => GameRunBehavior.Synchronous;
 
         protected override void OnIsMouseVisibleChanged()
-        {
-            _window.MouseVisibleToggled();
-        }
+            => _window.MouseVisibleToggled();
+
 
         public override bool BeforeRun()
         {
@@ -59,32 +56,23 @@ namespace MonoGame.Framework
         }
 
         public override void RunLoop()
-        {
-            _window.RunLoop();
-        }
+            => _window.RunLoop();
 
         public override void StartRunLoop()
-        {
-            throw new NotSupportedException("The Windows platform does not support asynchronous run loops");
-        }
-        
+            => throw new NotSupportedException("The Windows platform does not support asynchronous run loops");
+
         public override void Exit()
         {
-            if (_window != null)
-                _window.Dispose();
+            _window?.Dispose();
             _window = null;
             Window = null;
         }
 
         public override bool BeforeUpdate(GameTime gameTime)
-        {
-            return true;
-        }
+            => true;
 
         public override bool BeforeDraw(GameTime gameTime)
-        {
-            return true;
-        }
+            => true;
 
         public override void EnterFullScreen()
         {
@@ -95,9 +83,7 @@ namespace MonoGame.Framework
         }
 
         internal override void OnPresentationChanged(PresentationParameters pp)
-        {
-            _window.OnPresentationChanged(pp);
-        }
+            => _window.OnPresentationChanged(pp);
 
         public override void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight)
         {
@@ -108,17 +94,16 @@ namespace MonoGame.Framework
         }
 
         public override void Log(string message)
-        {
-            Debug.WriteLine(message);
-        }
+            => Debug.WriteLine(message);
 
+        // (WCS Edit) Inline it.
         public override void Present()
-        {
-            var device = Game.GraphicsDevice;
-            if ( device != null )
-                device.Present();
-        }
-		
+            => Game.GraphicsDevice.Present();
+        // {
+            // var device = Game.GraphicsDevice;
+            // device?.Present();
+        // }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

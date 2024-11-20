@@ -54,10 +54,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="game">The game instance to attach.</param>
         public GraphicsDeviceManager(Game game)
         {
-            if (game == null)
-                throw new ArgumentNullException("game", "Game cannot be null.");
-
-            _game = game;
+            _game = game ?? throw new ArgumentNullException(nameof(game), "Game cannot be null.");
 
             _supportedOrientations = DisplayOrientation.Default;
             _preferredBackBufferFormat = SurfaceFormat.Color;
@@ -98,9 +95,7 @@ namespace Microsoft.Xna.Framework
 
         /// <summary/>
         ~GraphicsDeviceManager()
-        {
-            Dispose(false);
-        }
+            => Dispose(false);
 
         private void CreateDevice()
         {
@@ -146,9 +141,7 @@ namespace Microsoft.Xna.Framework
         }
 
         void IGraphicsDeviceManager.CreateDevice()
-        {
-            CreateDevice();
-        }
+            => CreateDevice();
 
         /// <summary>
         /// Begins the drawing process.
@@ -158,20 +151,21 @@ namespace Microsoft.Xna.Framework
         /// <see langword="false"/> otherwise.
         /// </returns>
         public bool BeginDraw()
-        {
-            if (_graphicsDevice == null)
-                return false;
+            => _drawBegun = true;
+        // {
+        //     if (_graphicsDevice == null)
+        //         return false;
 
-            _drawBegun = true;
-            return true;
-        }
+        //     _drawBegun = true;
+        //     return true;
+        // }
 
         /// <summary>
         /// Ends the drawing process and calls <see cref="GraphicsDevice.Present()"/> for the current graphics device.
         /// </summary>
         public void EndDraw()
         {
-            if (_graphicsDevice != null && _drawBegun)
+            if (/*_graphicsDevice != null &&*/ _drawBegun)
             {
                 _drawBegun = false;
                 _graphicsDevice.Present();
@@ -197,18 +191,14 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         /// <param name="e"></param>
         protected void OnDeviceCreated(EventArgs e)
-        {
-            EventHelpers.Raise(this, DeviceCreated, e);
-        }
+            => EventHelpers.Raise(this, DeviceCreated, e);
 
         /// <summary>
         /// Called when a <see cref="GraphicsDevice"/> is disposed. Raises the <see cref="DeviceDisposing"/> event.
         /// </summary>
         /// <param name="e"></param>
         protected void OnDeviceDisposing(EventArgs e)
-        {
-            EventHelpers.Raise(this, DeviceDisposing, e);
-        }
+            => EventHelpers.Raise(this, DeviceDisposing, e);
 
         /// <summary>
         /// Called before a <see cref="Graphics.GraphicsDevice"/> is reset.
@@ -216,9 +206,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         /// <param name="e"></param>
         protected void OnDeviceResetting(EventArgs e)
-        {
-            EventHelpers.Raise(this, DeviceResetting, e);
-        }
+            => EventHelpers.Raise(this, DeviceResetting, e);
 
         /// <summary>
         /// Called after a <see cref="Graphics.GraphicsDevice"/> is reset.
@@ -226,9 +214,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         /// <param name="e"></param>
         protected void OnDeviceReset(EventArgs e)
-        {
-            EventHelpers.Raise(this, DeviceReset, e);
-        }
+            => EventHelpers.Raise(this, DeviceReset, e);
 
         /// <summary>
         /// Raised by <see cref="ApplyChanges"/>. Allows users to override the <see cref="PresentationParameters"/> to
@@ -411,19 +397,14 @@ namespace Microsoft.Xna.Framework
         }
 
         private void OnPresentationChanged(object sender, PresentationEventArgs args)
-        {
-            _game.Platform.OnPresentationChanged(args.PresentationParameters);
-        }
+            => _game.Platform.OnPresentationChanged(args.PresentationParameters);
 
         /// <summary>
         /// The profile which determines the graphics feature level.
         /// </summary>
         public GraphicsProfile GraphicsProfile
         {
-            get
-            {
-                return _graphicsProfile;
-            }
+            get => _graphicsProfile;
             set
             {
                 _shouldApplyChanges = true;
@@ -435,12 +416,7 @@ namespace Microsoft.Xna.Framework
         /// Returns the graphics device for this manager.
         /// </summary>
         public GraphicsDevice GraphicsDevice
-        {
-            get
-            {
-                return _graphicsDevice;
-            }
-        }
+            => _graphicsDevice;
 
         /// <summary>
         /// Indicates the desire to switch into fullscreen mode.
@@ -452,7 +428,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public bool IsFullScreen
         {
-            get { return _wantFullScreen; }
+            get => _wantFullScreen;
             set
             {
                 _shouldApplyChanges = true;
@@ -467,7 +443,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public bool HardwareModeSwitch
         {
-            get { return _hardwareModeSwitch;}
+            get => _hardwareModeSwitch;
             set
             {
                 _shouldApplyChanges = true;
@@ -491,7 +467,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public bool PreferHalfPixelOffset
         {
-            get { return _preferHalfPixelOffset; }
+            get => _preferHalfPixelOffset;
             set
             {
                 if (this.GraphicsDevice != null)
@@ -509,10 +485,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public bool PreferMultiSampling
         {
-            get
-            {
-                return _preferMultiSampling;
-            }
+            get => _preferMultiSampling;
             set
             {
                 _shouldApplyChanges = true;
@@ -529,10 +502,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public SurfaceFormat PreferredBackBufferFormat
         {
-            get
-            {
-                return _preferredBackBufferFormat;
-            }
+            get => _preferredBackBufferFormat;
             set
             {
                 _shouldApplyChanges = true;
@@ -549,10 +519,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public int PreferredBackBufferHeight
         {
-            get
-            {
-                return _preferredBackBufferHeight;
-            }
+            get => _preferredBackBufferHeight;
             set
             {
                 _shouldApplyChanges = true;
@@ -569,10 +536,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public int PreferredBackBufferWidth
         {
-            get
-            {
-                return _preferredBackBufferWidth;
-            }
+            get => _preferredBackBufferWidth;
             set
             {
                 _shouldApplyChanges = true;
@@ -590,10 +554,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public DepthFormat PreferredDepthStencilFormat
         {
-            get
-            {
-                return _preferredDepthStencilFormat;
-            }
+            get => _preferredDepthStencilFormat;
             set
             {
                 _shouldApplyChanges = true;
@@ -613,10 +574,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public bool SynchronizeWithVerticalRetrace
         {
-            get
-            {
-                return _synchronizedWithVerticalRetrace;
-            }
+            get => _synchronizedWithVerticalRetrace;
             set
             {
                 _shouldApplyChanges = true;
@@ -634,10 +592,7 @@ namespace Microsoft.Xna.Framework
         /// </remarks>
         public DisplayOrientation SupportedOrientations
         {
-            get
-            {
-                return _supportedOrientations;
-            }
+            get => _supportedOrientations;
             set
             {
                 _shouldApplyChanges = true;

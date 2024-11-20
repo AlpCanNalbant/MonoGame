@@ -17,13 +17,14 @@ namespace Microsoft.Xna.Framework
     /// This class is the entry point for most games. Handles setting up
     /// a window and graphics and runs a game loop that calls <see cref="Update"/> and <see cref="Draw"/>.
     /// </summary>
-    public partial class Game : IDisposable
+    public abstract partial class Game : IDisposable
     {
         private GameComponentCollection _components;
-        private GameServiceContainer _services;
+        private readonly GameServiceContainer _services;
         private ContentManager _content;
         internal GamePlatform Platform;
 
+        /* (WCS Edit) We doesnt have any game component.
         private SortingFilteringCollection<IDrawable> _drawables =
             new SortingFilteringCollection<IDrawable>(
                 d => d.Visible,
@@ -41,6 +42,7 @@ namespace Microsoft.Xna.Framework
                 (u1, u2) => Comparer<int>.Default.Compare(u1.UpdateOrder, u2.UpdateOrder),
                 (u, handler) => u.UpdateOrderChanged += handler,
                 (u, handler) => u.UpdateOrderChanged -= handler);
+        */
 
         private IGraphicsDeviceManager _graphicsDeviceManager;
         private IGraphicsDeviceService _graphicsDeviceService;
@@ -65,9 +67,9 @@ namespace Microsoft.Xna.Framework
         {
             _instance = this;
 
-            LaunchParameters = new LaunchParameters();
+            LaunchParameters = [];
             _services = new GameServiceContainer();
-            _components = new GameComponentCollection();
+            _components = [];
             _content = new ContentManager(_services);
 
             Platform = GamePlatform.PlatformCreate(this);
@@ -75,8 +77,9 @@ namespace Microsoft.Xna.Framework
             Platform.Deactivated += OnDeactivated;
             _services.AddService(typeof(GamePlatform), Platform);
 
+            // (WCS Edit) FNA library is used for FrameworkDispatcher.
             // Calling Update() for first time initializes some systems
-            FrameworkDispatcher.Update();
+            // FrameworkDispatcher.Update();
 
             // Allow some optional per-platform construction to occur too.
             PlatformConstruct();
@@ -85,15 +88,11 @@ namespace Microsoft.Xna.Framework
 
         /// <summary/>
         ~Game()
-        {
-            Dispose(false);
-        }
+            => Dispose(false);
 
 		[System.Diagnostics.Conditional("DEBUG")]
 		internal void Log(string Message)
-		{
-			if (Platform != null) Platform.Log(Message);
-		}
+			=> Platform?.Log(Message);
 
         #region IDisposable Implementation
 
@@ -116,8 +115,7 @@ namespace Microsoft.Xna.Framework
                     // Dispose loaded game components
                     for (int i = 0; i < _components.Count; i++)
                     {
-                        var disposable = _components[i] as IDisposable;
-                        if (disposable != null)
+                        if (_components[i] is IDisposable disposable)
                             disposable.Dispose();
                     }
                     _components = null;
@@ -176,7 +174,7 @@ namespace Microsoft.Xna.Framework
         public static AndroidGameActivity Activity { get; internal set; }
 #endif
         private static Game _instance = null;
-        internal static Game Instance { get { return Game._instance; } }
+        internal static Game Instance => Game._instance;
 
         /// <summary>
         /// The start up parameters for this <see cref="Game"/>.
@@ -186,22 +184,22 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// A collection of game components attached to this <see cref="Game"/>.
         /// </summary>
-        public GameComponentCollection Components
+
+        // (WCS Edit) Don't use components.
+        /*public GameComponentCollection Components
         {
             get { return _components; }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets time to sleep between frames when the game is not active
         /// </summary>
         public TimeSpan InactiveSleepTime
         {
-            get { return _inactiveSleepTime; }
+            get => _inactiveSleepTime;
             set
             {
-                if (value < TimeSpan.Zero)
-                    throw new ArgumentOutOfRangeException("The time must be positive.");
-
+                ArgumentOutOfRangeException.ThrowIfLessThan(value, TimeSpan.Zero);
                 _inactiveSleepTime = value;
             }
         }
@@ -212,17 +210,11 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public TimeSpan MaxElapsedTime
         {
-            get { return _maxElapsedTime; }
+            get => _maxElapsedTime;
             set
             {
-                if (value < TimeSpan.Zero)
-                    throw new ArgumentOutOfRangeException(
-                        "The time must be positive.");
-                
-                if (value < _targetElapsedTime)
-                    throw new ArgumentOutOfRangeException(
-                        "The time must be at least TargetElapsedTime");
-
+                ArgumentOutOfRangeException.ThrowIfLessThan(value, TimeSpan.Zero);
+                ArgumentOutOfRangeException.ThrowIfLessThan(value, _targetElapsedTime);
                 _maxElapsedTime = value;
             }
         }
@@ -231,17 +223,15 @@ namespace Microsoft.Xna.Framework
         /// Indicates if the game is the focused application.
         /// </summary>
         public bool IsActive
-        {
-            get { return Platform.IsActive; }
-        }
+            => Platform.IsActive;
 
         /// <summary>
         /// Indicates if the mouse cursor is visible on the game screen.
         /// </summary>
         public bool IsMouseVisible
         {
-            get { return Platform.IsMouseVisible; }
-            set { Platform.IsMouseVisible = value; }
+            get => Platform.IsMouseVisible;
+            set => Platform.IsMouseVisible = value;
         }
 
         /// <summary>
@@ -250,20 +240,16 @@ namespace Microsoft.Xna.Framework
         /// <exception cref="ArgumentOutOfRangeException">Target elapsed time must be strictly larger than zero.</exception>
         public TimeSpan TargetElapsedTime
         {
-            get { return _targetElapsedTime; }
+            get => _targetElapsedTime;
             set
             {
                 // Give GamePlatform implementations an opportunity to override
                 // the new value.
                 value = Platform.TargetElapsedTimeChanging(value);
 
-                if (value <= TimeSpan.Zero)
-                    throw new ArgumentOutOfRangeException(
-                        "The time must be positive and non-zero.");
+                ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(value, TimeSpan.Zero);
 
-                if (value > _maxElapsedTime)
-                    throw new ArgumentOutOfRangeException(
-                        "The time can not be larger than MaxElapsedTime");
+                ArgumentOutOfRangeException.ThrowIfGreaterThan(value, _maxElapsedTime);
 
                 if (value != _targetElapsedTime)
                 {
@@ -276,23 +262,21 @@ namespace Microsoft.Xna.Framework
 
         /// <summary>
         /// Indicates if this game is running with a fixed time between frames.
-        /// 
+        ///
         /// When set to <code>true</code> the target time between frames is
         /// given by <see cref="TargetElapsedTime"/>.
         /// </summary>
         public bool IsFixedTimeStep
         {
-            get { return _isFixedTimeStep; }
-            set { _isFixedTimeStep = value; }
+            get => _isFixedTimeStep;
+            set => _isFixedTimeStep = value;
         }
 
         /// <summary>
         /// Get a container holding service providers attached to this <see cref="Game"/>.
         /// </summary>
-        public GameServiceContainer Services {
-            get { return _services; }
-        }
-
+        public GameServiceContainer Services
+            => _services;
 
         /// <summary>
         /// The <see cref="ContentManager"/> of this <see cref="Game"/>.
@@ -300,12 +284,10 @@ namespace Microsoft.Xna.Framework
         /// <exception cref="ArgumentNullException">If Content is set to <code>null</code>.</exception>
         public ContentManager Content
         {
-            get { return _content; }
+            get => _content;
             set
             {
-                if (value == null)
-                    throw new ArgumentNullException();
-
+                ArgumentNullException.ThrowIfNull(value);
                 _content = value;
             }
         }
@@ -336,9 +318,7 @@ namespace Microsoft.Xna.Framework
         /// The system window that this game is displayed on.
         /// </summary>
         public GameWindow Window
-        {
-            get { return Platform.Window; }
-        }
+            => Platform.Window;
 
         #endregion Properties
 
@@ -349,9 +329,7 @@ namespace Microsoft.Xna.Framework
         // determine whether to raise DeviceResetting and DeviceReset on
         // GraphicsDeviceManager.
         internal bool Initialized
-        {
-            get { return _initialized; }
-        }
+            => _initialized;
 
         #endregion Internal Properties
 
@@ -414,10 +392,9 @@ namespace Microsoft.Xna.Framework
         /// Supress calling <see cref="Draw"/> in the game loop.
         /// </summary>
         public void SuppressDraw()
-        {
-            _suppressDraw = true;
-        }
-        
+            => _suppressDraw = true;
+
+
         /// <summary>
         /// Run the game for one frame, then exit.
         /// </summary>
@@ -436,22 +413,19 @@ namespace Microsoft.Xna.Framework
                 _initialized = true;
             }
 
-            BeginRun();            
+            BeginRun();
 
             //Not quite right..
             Tick ();
 
             EndRun ();
-
         }
 
         /// <summary>
         /// Run the game using the default <see cref="GameRunBehavior"/> for the current platform.
         /// </summary>
         public void Run()
-        {
-            Run(Platform.DefaultRunBehavior);
-        }
+            => Run(Platform.DefaultRunBehavior);
 
         /// <summary>
         /// Run the game.
@@ -468,7 +442,7 @@ namespace Microsoft.Xna.Framework
             }
 
             if (!_initialized) {
-                DoInitialize ();
+                DoInitialize();
                 _initialized = true;
             }
 
@@ -482,7 +456,7 @@ namespace Microsoft.Xna.Framework
                 break;
             case GameRunBehavior.Synchronous:
                 // XNA runs one Update even before showing the window
-                DoUpdate(new GameTime());
+                // DoUpdate(new GameTime());
 
                 Platform.RunLoop();
                 break;
@@ -493,7 +467,7 @@ namespace Microsoft.Xna.Framework
         }
 
         private TimeSpan _accumulatedElapsedTime;
-        private readonly GameTime _gameTime = new GameTime();
+        private readonly GameTime _gameTime = new();
         private Stopwatch _gameTimer;
         private long _previousTicks = 0;
         private int _updateFrameLag;
@@ -509,8 +483,8 @@ namespace Microsoft.Xna.Framework
         public void Tick()
         {
             // NOTE: This code is very sensitive and can break very badly
-            // with even what looks like a safe change.  Be sure to test 
-            // any change fully in both the fixed and variable timestep 
+            // with even what looks like a safe change.  Be sure to test
+            // any change fully in both the fixed and variable timestep
             // modes across multiple devices and platforms.
 
         RetryTick:
@@ -561,7 +535,7 @@ namespace Microsoft.Xna.Framework
                     _accumulatedElapsedTime -= TargetElapsedTime;
                     ++stepCount;
 
-                    DoUpdate(_gameTime);
+                    // DoUpdate(_gameTime);
                 }
 
                 //Every update after the first accumulates lag
@@ -594,7 +568,7 @@ namespace Microsoft.Xna.Framework
                 _gameTime.TotalGameTime += _accumulatedElapsedTime;
                 _accumulatedElapsedTime = TimeSpan.Zero;
 
-                DoUpdate(_gameTime);
+                // DoUpdate(_gameTime);
             }
 
             // Draw unless the update suppressed it.
@@ -633,36 +607,36 @@ namespace Microsoft.Xna.Framework
         /// <returns>
         ///   <code>true</code> if <see cref="Draw"/> should be called, <code>false</code> if it should not.
         /// </returns>
-        protected virtual bool BeginDraw() { return true; }
+        // (WCS Edit) Inline it.
+        protected virtual bool BeginDraw() => true;
 
         /// <summary>
         /// Called right after <see cref="Draw"/>. Presents the
         /// rendered frame in the <see cref="GameWindow"/>.
         /// </summary>
         protected virtual void EndDraw()
-        {
-            Platform.Present();
-        }
+            => Platform.Present();
+
 
         /// <summary>
         /// Called after <see cref="Initialize"/>, but before the first call to <see cref="Update"/>.
         /// </summary>
-        protected virtual void BeginRun() { }
+        protected abstract void BeginRun();
 
         /// <summary>
         /// Called when the game loop has been terminated before exiting.
         /// </summary>
-        protected virtual void EndRun() { }
+        protected abstract void EndRun();
 
         /// <summary>
         /// Override this to load graphical resources required by the game.
         /// </summary>
-        protected virtual void LoadContent() { }
+        protected abstract void LoadContent();
 
         /// <summary>
         /// Override this to unload graphical resources loaded by the game.
         /// </summary>
-        protected virtual void UnloadContent() { }
+        protected abstract void UnloadContent();
 
         /// <summary>
         /// Override this to initialize the game and load any needed non-graphical resources.
@@ -681,7 +655,7 @@ namespace Microsoft.Xna.Framework
             // are initialized.
             // http://msdn.microsoft.com/en-us/library/microsoft.xna.framework.game.initialize.aspx
             // Initialize all existing components
-            InitializeExistingComponents();
+            // InitializeExistingComponents();
 
             _graphicsDeviceService = (IGraphicsDeviceService)
                 Services.GetService(typeof(IGraphicsDeviceService));
@@ -693,8 +667,8 @@ namespace Microsoft.Xna.Framework
             }
         }
 
-        private static readonly Action<IDrawable, GameTime> DrawAction =
-            (drawable, gameTime) => drawable.Draw(gameTime);
+        // private static readonly Action<IDrawable, GameTime> DrawAction =
+            // (drawable, gameTime) => drawable.Draw(gameTime);
 
         /// <summary>
         /// Called when the game should draw a frame.
@@ -703,14 +677,15 @@ namespace Microsoft.Xna.Framework
         /// Override this to render your game.
         /// </summary>
         /// <param name="gameTime">A <see cref="GameTime"/> instance containing the elapsed time since the last call to <see cref="Draw"/> and the total time elapsed since the game started.</param>
-        protected virtual void Draw(GameTime gameTime)
-        {
+        // (WCS Edit) Make it abstract.
+        protected abstract void Draw(GameTime gameTime);
+        // {
+            // (WCS Edit) We doesnt have any game component.
+            // _drawables.ForEachFilteredItem(DrawAction, gameTime);
+        // }
 
-            _drawables.ForEachFilteredItem(DrawAction, gameTime);
-        }
-
-        private static readonly Action<IUpdateable, GameTime> UpdateAction =
-            (updateable, gameTime) => updateable.Update(gameTime);
+        // private static readonly Action<IUpdateable, GameTime> UpdateAction =
+        //     (updateable, gameTime) => updateable.Update(gameTime);
 
         /// <summary>
         /// Called when the game should update.
@@ -719,10 +694,12 @@ namespace Microsoft.Xna.Framework
         /// Override this to update your game.
         /// </summary>
         /// <param name="gameTime">The elapsed time since the last call to <see cref="Update"/>.</param>
-        protected virtual void Update(GameTime gameTime)
-        {
-            _updateables.ForEachFilteredItem(UpdateAction, gameTime);
-		}
+        // (WCS Edit) Make it abstract.
+        protected abstract void Update(GameTime gameTime);
+        // {
+            // (WCS Edit) We doesnt have any game component.
+            // _updateables.ForEachFilteredItem(UpdateAction, gameTime);
+		// }
 
         /// <summary>
         /// Called when the game is exiting. Raises the <see cref="Exiting"/> event.
@@ -730,10 +707,8 @@ namespace Microsoft.Xna.Framework
         /// <param name="sender">This <see cref="Game"/>.</param>
         /// <param name="args">The arguments to the <see cref="Exiting"/> event.</param>
         protected virtual void OnExiting(object sender, ExitingEventArgs args)
-        {
-            EventHelpers.Raise(sender, Exiting, args);
-        }
-		
+            => EventHelpers.Raise(sender, Exiting, args);
+
         /// <summary>
         /// Called when the game gains focus. Raises the <see cref="Activated"/> event.
         /// </summary>
@@ -744,7 +719,7 @@ namespace Microsoft.Xna.Framework
 			AssertNotDisposed();
             EventHelpers.Raise(sender, Activated, args);
 		}
-		
+
         /// <summary>
         /// Called when the game loses focus. Raises the <see cref="Deactivated"/> event.
         /// </summary>
@@ -760,6 +735,7 @@ namespace Microsoft.Xna.Framework
 
         #region Event Handlers
 
+        /*
         private void Components_ComponentAdded(
             object sender, GameComponentCollectionEventArgs e)
         {
@@ -774,6 +750,7 @@ namespace Microsoft.Xna.Framework
         {
             DecategorizeComponent(e.GameComponent);
         }
+        */
 
         private void Platform_AsyncRunLoopEnded(object sender, EventArgs e)
         {
@@ -808,20 +785,23 @@ namespace Microsoft.Xna.Framework
 			Platform.EndScreenDeviceChange(string.Empty, viewport.Width, viewport.Height);
         }
 #endif
+        // (WCS Edit) Unnecessary method to run on every frame.
+        // internal void DoUpdate(GameTime gameTime)
+        // {
+        //     AssertNotDisposed();
+        //     if (Platform.BeforeUpdate(gameTime))
+        //     {
+        //         // (WCS Edit) FNA library is used for FrameworkDispatcher.
+        //         FrameworkDispatcher.Update();
 
-        internal void DoUpdate(GameTime gameTime)
-        {
-            AssertNotDisposed();
-            if (Platform.BeforeUpdate(gameTime))
-            {
-                FrameworkDispatcher.Update();
-				
-                Update(gameTime);
+        //         // (WCS Edit) We doesnt have any game component.
+        //         Update(gameTime);
 
-                //The TouchPanel needs to know the time for when touches arrive
-                TouchPanelState.CurrentTimestamp = gameTime.TotalGameTime;
-            }
-        }
+        //         // The TouchPanel needs to know the time for when touches arrive
+        //         // (WCS Edit) We doesn't have any touch panel.
+        //         TouchPanelState.CurrentTimestamp = gameTime.TotalGameTime;
+        //     }
+        // }
 
         internal void DoDraw(GameTime gameTime)
         {
@@ -849,10 +829,10 @@ namespace Microsoft.Xna.Framework
             // 1. Categorize components into IUpdateable and IDrawable lists.
             // 2. Subscribe to Added/Removed events to keep the categorized
             //    lists synced and to Initialize future components as they are
-            //    added.            
-            CategorizeComponents();
-            _components.ComponentAdded += Components_ComponentAdded;
-            _components.ComponentRemoved += Components_ComponentRemoved;
+            //    added.
+            // CategorizeComponents();
+            // _components.ComponentAdded += Components_ComponentAdded;
+            // _components.ComponentRemoved += Components_ComponentRemoved;
         }
 
         #endregion Internal Methods
@@ -861,11 +841,8 @@ namespace Microsoft.Xna.Framework
         {
             get
             {
-                if (_graphicsDeviceManager == null)
-                {
-                    _graphicsDeviceManager = (IGraphicsDeviceManager)
+                _graphicsDeviceManager ??= (IGraphicsDeviceManager)
                         Services.GetService(typeof(IGraphicsDeviceManager));
-                }
                 return (GraphicsDeviceManager)_graphicsDeviceManager;
             }
             set
@@ -881,27 +858,34 @@ namespace Microsoft.Xna.Framework
         //       that no component will get a duplicate Initialize call.
         //       Further calls to Initialize occur immediately in response to
         //       Components.ComponentAdded.
+        /*
         private void InitializeExistingComponents()
         {
             for(int i = 0; i < Components.Count; ++i)
                 Components[i].Initialize();
         }
+        */
 
+        /*
         private void CategorizeComponents()
         {
             DecategorizeComponents();
             for (int i = 0; i < Components.Count; ++i)
                 CategorizeComponent(Components[i]);
         }
+        */
 
         // FIXME: I am open to a better name for this method.  It does the
         //        opposite of CategorizeComponents.
+        /*
         private void DecategorizeComponents()
         {
             _updateables.Clear();
             _drawables.Clear();
         }
+        */
 
+        /*
         private void CategorizeComponent(IGameComponent component)
         {
             if (component is IUpdateable)
@@ -909,9 +893,11 @@ namespace Microsoft.Xna.Framework
             if (component is IDrawable)
                 _drawables.Add((IDrawable)component);
         }
+        */
 
         // FIXME: I am open to a better name for this method.  It does the
         //        opposite of CategorizeComponent.
+        /*
         private void DecategorizeComponent(IGameComponent component)
         {
             if (component is IUpdateable)
@@ -919,6 +905,7 @@ namespace Microsoft.Xna.Framework
             if (component is IDrawable)
                 _drawables.Remove((IDrawable)component);
         }
+        */
 
         /// <summary>
         /// The SortingFilteringCollection class provides efficient, reusable
@@ -949,10 +936,10 @@ namespace Microsoft.Xna.Framework
                 Action<T, EventHandler<EventArgs>> sortChangedSubscriber,
                 Action<T, EventHandler<EventArgs>> sortChangedUnsubscriber)
             {
-                _items = new List<T>();
-                _addJournal = new List<AddJournalEntry<T>>();
-                _removeJournal = new List<int>();
-                _cachedFilteredItems = new List<T>();
+                _items = [];
+                _addJournal = [];
+                _removeJournal = [];
+                _cachedFilteredItems = [];
                 _shouldRebuildCache = true;
 
                 _filter = filter;
@@ -1039,34 +1026,22 @@ namespace Microsoft.Xna.Framework
             }
 
             public bool Contains(T item)
-            {
-                return _items.Contains(item);
-            }
+                => _items.Contains(item);
 
             public void CopyTo(T[] array, int arrayIndex)
-            {
-                _items.CopyTo(array, arrayIndex);
-            }
+                => _items.CopyTo(array, arrayIndex);
 
             public int Count
-            {
-                get { return _items.Count; }
-            }
+                => _items.Count;
 
             public bool IsReadOnly
-            {
-                get { return false; }
-            }
+                => false;
 
             public IEnumerator<T> GetEnumerator()
-            {
-                return _items.GetEnumerator();
-            }
+                => _items.GetEnumerator();
 
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return ((System.Collections.IEnumerable)_items).GetEnumerator();
-            }
+                => ((System.Collections.IEnumerable)_items).GetEnumerator();
 
             private static readonly Comparison<int> RemoveJournalSortComparison =
                 (x, y) => Comparer<int>.Default.Compare(y, x); // Sort high to low
@@ -1137,14 +1112,10 @@ namespace Microsoft.Xna.Framework
             }
 
             private void InvalidateCache()
-            {
-                _shouldRebuildCache = true;
-            }
+                => _shouldRebuildCache = true;
 
             private void Item_FilterPropertyChanged(object sender, EventArgs e)
-            {
-                InvalidateCache();
-            }
+                => InvalidateCache();
 
             private void Item_SortPropertyChanged(object sender, EventArgs e)
             {
@@ -1161,32 +1132,21 @@ namespace Microsoft.Xna.Framework
             }
         }
 
-        private struct AddJournalEntry<T>
+        private readonly struct AddJournalEntry<T>(int order, T item)
         {
-            public readonly int Order;
-            public readonly T Item;
-
-            public AddJournalEntry(int order, T item)
-            {
-                Order = order;
-                Item = item;
-            }
+            public readonly int Order = order;
+            public readonly T Item = item;
 
             public static AddJournalEntry<T> CreateKey(T item)
-            {
-                return new AddJournalEntry<T>(-1, item);
-            }
+                => new(-1, item);
 
             public override int GetHashCode()
-            {
-                return Item.GetHashCode();
-            }
+                => Item.GetHashCode();
 
             public override bool Equals(object obj)
             {
-                if (!(obj is AddJournalEntry<T>))
+                if (obj is not AddJournalEntry<T>)
                     return false;
-
                 return object.Equals(Item, ((AddJournalEntry<T>)obj).Item);
             }
         }

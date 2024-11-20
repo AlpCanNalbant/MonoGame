@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -7,7 +8,7 @@ namespace Microsoft.Xna.Framework.Graphics
     /// </summary>
     public class EffectAnnotationCollection : IEnumerable<EffectAnnotation>
 	{
-        internal static readonly EffectAnnotationCollection Empty = new EffectAnnotationCollection(new EffectAnnotation[0]);
+        internal static readonly EffectAnnotationCollection Empty = new([]);
 
 	    private readonly EffectAnnotation[] _annotations;
 
@@ -19,18 +20,15 @@ namespace Microsoft.Xna.Framework.Graphics
         /// <summary>
         /// Gets the number of elements contained in the collection.
         /// </summary>
-		public int Count 
-        {
-			get { return _annotations.Length; }
-		}
+		public int Count
+            => _annotations.Length;
 
         /// <summary>
         /// Retrieves the <see cref="EffectAnnotation"/> at the specified index in the collection.
         /// </summary>
         public EffectAnnotation this[int index]
-        {
-            get { return _annotations[index]; }
-        }
+            => _annotations[index];
+
 
         /// <summary>
         /// Retrieves a <see cref="EffectAnnotation"/> from the collection, given the name of the annotation.
@@ -38,12 +36,13 @@ namespace Microsoft.Xna.Framework.Graphics
         /// <param name="name">The name of the annotation to retrieve.</param>
         public EffectAnnotation this[string name]
         {
-            get 
+            get
             {
-				foreach (var annotation in _annotations) 
+                var span = new ReadOnlySpan<EffectAnnotation>(_annotations);
+				for (int i = 0; i < span.Length; ++i)
                 {
-					if (annotation.Name == name)
-						return annotation;
+					if (span[i].Name == name)
+						return span[i];
 				}
 				return null;
 			}
@@ -51,14 +50,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
         /// <inheritdoc/>
 		public IEnumerator<EffectAnnotation> GetEnumerator()
-        {
-            return ((IEnumerable<EffectAnnotation>)_annotations).GetEnumerator();
-        }
+            => ((IEnumerable<EffectAnnotation>)_annotations).GetEnumerator();
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return _annotations.GetEnumerator();
-        }
+            => _annotations.GetEnumerator();
 	}
 }
-

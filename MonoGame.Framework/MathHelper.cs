@@ -11,47 +11,47 @@ namespace Microsoft.Xna.Framework
     /// </summary>
     public static class MathHelper
     {
-    	/// <summary>
+        /// <summary>
         /// Represents the mathematical constant e(2.71828175).
         /// </summary>
         public const float E = MathF.E;
-        
+
         /// <summary>
         /// Represents the log base ten of e(0.4342945).
         /// </summary>
         public const float Log10E = 0.4342945f;
-        
+
         /// <summary>
         /// Represents the log base two of e(1.442695).
         /// </summary>
         public const float Log2E = 1.442695f;
-        
+
         /// <summary>
         /// Represents the value of pi(3.14159274).
         /// </summary>
         public const float Pi = MathF.PI;
-        
+
         /// <summary>
         /// Represents the value of pi divided by two(1.57079637).
         /// </summary>
-        public const float PiOver2 = (float)(Math.PI / 2.0);
-        
+        public const float PiOver2 = (MathF.PI / 2.0f);
+
         /// <summary>
         /// Represents the value of pi divided by four(0.7853982).
         /// </summary>
-        public const float PiOver4 = (float)(Math.PI / 4.0);
-        
+        public const float PiOver4 = (MathF.PI / 4.0f);
+
         /// <summary>
         /// Represents the value of pi times two(6.28318548).
         /// </summary>
-        public const float TwoPi = (float)(Math.PI * 2.0);
-        
+        public const float TwoPi = (MathF.PI * 2.0f);
+
         /// <summary>
         /// Represents the value of pi times two(6.28318548).
         /// This is an alias of TwoPi.
         /// </summary>
         public const float Tau = TwoPi;
-        
+
         /// <summary>
         /// Returns the Cartesian coordinate for one axis of a point that is defined by a given triangle and two normalized barycentric (areal) coordinates.
         /// </summary>
@@ -62,11 +62,9 @@ namespace Microsoft.Xna.Framework
         /// <param name="amount2">The normalized barycentric (areal) coordinate b3, equal to the weighting factor for vertex 3, the coordinate of which is specified in value3.</param>
         /// <returns>Cartesian coordinate of the specified point with respect to the axis being used.</returns>
         public static float Barycentric(float value1, float value2, float value3, float amount1, float amount2)
-        {
-            return value1 + (value2 - value1) * amount1 + (value3 - value1) * amount2;
-        }
+            => value1 + (value2 - value1) * amount1 + (value3 - value1) * amount2;
 
-	/// <summary>
+        /// <summary>
         /// Performs a Catmull-Rom interpolation using the specified positions.
         /// </summary>
         /// <param name="value1">The first position in the interpolation.</param>
@@ -79,15 +77,14 @@ namespace Microsoft.Xna.Framework
         {
             // Using formula from http://www.mvps.org/directx/articles/catmull/
             // Internally using doubles not to lose precision
-            double amountSquared = amount * amount;
-            double amountCubed = amountSquared * amount;
-            return (float)(0.5 * (2.0 * value2 +
+            float amountSquared = amount * amount;
+            return (0.5f * (2.0f * value2 +
                 (value3 - value1) * amount +
-                (2.0 * value1 - 5.0 * value2 + 4.0 * value3 - value4) * amountSquared +
-                (3.0 * value2 - value1 - 3.0 * value3 + value4) * amountCubed));
+                (2.0f * value1 - 5.0f * value2 + 4.0f * value3 - value4) * amountSquared +
+                (3.0f * value2 - value1 - 3.0f * value3 + value4) * (amountSquared * amount)));
         }
 
- 	/// <summary>
+        /// <summary>
         /// Restricts a value to be within a specified range.
         /// </summary>
         /// <param name="value">The value to clamp.</param>
@@ -95,17 +92,9 @@ namespace Microsoft.Xna.Framework
         /// <param name="max">The maximum value. If <c>value</c> is greater than <c>max</c>, <c>max</c> will be returned.</param>
         /// <returns>The clamped value.</returns>
         public static float Clamp(float value, float min, float max)
-        {
-            // First we check to see if we're greater than the max
-            value = (value > max) ? max : value;
+            => (value > max) ? max : (value < min) ? min : value;
 
-            // Then we check to see if we're less than the min.
-            value = (value < min) ? min : value;
 
-            // There's no check to see if min > max.
-            return value;
-        }
-        
         /// <summary>
         /// Restricts a value to be within a specified range.
         /// </summary>
@@ -114,12 +103,9 @@ namespace Microsoft.Xna.Framework
         /// <param name="max">The maximum value. If <c>value</c> is greater than <c>max</c>, <c>max</c> will be returned.</param>
         /// <returns>The clamped value.</returns>
         public static int Clamp(int value, int min, int max)
-        { 
-            value = (value > max) ? max : value; 
-            value = (value < min) ? min : value; 
-            return value;
-        }
-        
+            => (value > max) ? max : (value < min) ? min : value;
+
+
         /// <summary>
         /// Calculates the absolute value of the difference of two values.
         /// </summary>
@@ -127,10 +113,8 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source value.</param>
         /// <returns>Distance between the two values.</returns>
         public static float Distance(float value1, float value2)
-        {
-            return Math.Abs(value1 - value2);
-        }
-        
+            => MathF.Abs(value1 - value2);
+
         /// <summary>
         /// Performs a Hermite spline interpolation.
         /// </summary>
@@ -144,39 +128,35 @@ namespace Microsoft.Xna.Framework
         {
             // All transformed to double not to lose precision
             // Otherwise, for high numbers of param:amount the result is NaN instead of Infinity
-            double v1 = value1, v2 = value2, t1 = tangent1, t2 = tangent2, s = amount, result;
-            double sCubed = s * s * s;
-            double sSquared = s * s;
+            float v1 = value1, v2 = value2, t1 = tangent1, t2 = tangent2, s = amount, result;
 
             if (amount == 0f)
                 result = value1;
             else if (amount == 1f)
                 result = value2;
             else
-                result = (2 * v1 - 2 * v2 + t2 + t1) * sCubed +
-                    (3 * v2 - 3 * v1 - 2 * t1 - t2) * sSquared +
+                result = (2f * v1 - 2f * v2 + t2 + t1) * (s * s * s) +
+                    (3f * v2 - 3f * v1 - 2f * t1 - t2) * (s * s) +
                     t1 * s +
                     v1;
-            return (float)result;
+            return result;
         }
-        
-        
+
+
         /// <summary>
         /// Linearly interpolates between two values.
         /// </summary>
         /// <param name="value1">Source value.</param>
         /// <param name="value2">Destination value.</param>
         /// <param name="amount">Value between 0 and 1 indicating the weight of value2.</param>
-        /// <returns>Interpolated value.</returns> 
+        /// <returns>Interpolated value.</returns>
         /// <remarks>This method performs the linear interpolation based on the following formula:
         /// <code>value1 + (value2 - value1) * amount</code>.
         /// Passing amount a value of 0 will cause value1 to be returned, a value of 1 will cause value2 to be returned.
         /// See <see cref="MathHelper.LerpPrecise"/> for a less efficient version with more precision around edge cases.
         /// </remarks>
         public static float Lerp(float value1, float value2, float amount)
-        {
-            return value1 + (value2 - value1) * amount;
-        }
+            => value1 + (value2 - value1) * amount;
 
 
         /// <summary>
@@ -200,9 +180,7 @@ namespace Microsoft.Xna.Framework
         /// Relevant StackOverflow Answer: http://stackoverflow.com/questions/4353525/floating-point-linear-interpolation#answer-23716956
         /// </remarks>
         public static float LerpPrecise(float value1, float value2, float amount)
-        {
-            return ((1 - amount) * value1) + (value2 * amount);
-        }
+            => ((1f - amount) * value1) + (value2 * amount);
 
         /// <summary>
         /// Returns the greater of two values.
@@ -211,9 +189,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source value.</param>
         /// <returns>The greater value.</returns>
         public static float Max(float value1, float value2)
-        {
-            return value1 > value2 ? value1 : value2;
-        }
+            => value1 > value2 ? value1 : value2;
 
         /// <summary>
         /// Returns the greater of two values.
@@ -222,10 +198,8 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source value.</param>
         /// <returns>The greater value.</returns>
         public static int Max(int value1, int value2)
-        {
-            return value1 > value2 ? value1 : value2;
-        }
-        
+            => value1 > value2 ? value1 : value2;
+
         /// <summary>
         /// Returns the lesser of two values.
         /// </summary>
@@ -233,9 +207,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source value.</param>
         /// <returns>The lesser value.</returns>
         public static float Min(float value1, float value2)
-        {
-            return value1 < value2 ? value1 : value2;
-        }
+            => value1 < value2 ? value1 : value2;
 
         /// <summary>
         /// Returns the lesser of two values.
@@ -244,10 +216,8 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source value.</param>
         /// <returns>The lesser value.</returns>
         public static int Min(int value1, int value2)
-        {
-            return value1 < value2 ? value1 : value2;
-        }
-        
+            => value1 < value2 ? value1 : value2;
+
         /// <summary>
         /// Interpolates between two values using a cubic equation.
         /// </summary>
@@ -256,15 +226,15 @@ namespace Microsoft.Xna.Framework
         /// <param name="amount">Weighting value.</param>
         /// <returns>Interpolated value.</returns>
         public static float SmoothStep(float value1, float value2, float amount)
-        {
+            // {
             // It is expected that 0 < amount < 1
             // If amount < 0, return value1
             // If amount > 1, return value2
-            float result = MathHelper.Clamp(amount, 0f, 1f);
-            result = MathHelper.Hermite(value1, 0f, value2, 0f, result);
 
-            return result;
-        }
+
+
+            => MathHelper.Hermite(value1, 0f, value2, 0f, MathHelper.Clamp(amount, 0f, 1f));
+        // }
 
         /// <summary>
         /// Converts radians to degrees.
@@ -277,9 +247,7 @@ namespace Microsoft.Xna.Framework
         /// Factor = 180 / pi
         /// </remarks>
         public static float ToDegrees(float radians)
-        { 
-            return (float)(radians * 57.295779513082320876798154814105);
-        }
+            => radians * 57.295779513082320876798154814105f;
 
         /// <summary>
         /// Converts degrees to radians.
@@ -287,15 +255,13 @@ namespace Microsoft.Xna.Framework
         /// <param name="degrees">The angle in degrees.</param>
         /// <returns>The angle in radians.</returns>
         /// <remarks>
-        /// This method uses double precision internally,
+        /// This method uses double precision internally, (WCS EDit) Not anymore.
         /// though it returns single float
         /// Factor = pi / 180
         /// </remarks>
         public static float ToRadians(float degrees)
-        { 
-            return (float)(degrees * 0.017453292519943295769236907684886);
-        }
-	 
+            => degrees * 0.017453292519943295769236907684886f;
+
         /// <summary>
         /// Reduces a given angle to a value between π and -π.
         /// </summary>
@@ -313,14 +279,12 @@ namespace Microsoft.Xna.Framework
             return angle;
         }
 
- 	    /// <summary>
+        /// <summary>
         /// Determines if value is powered by two.
         /// </summary>
         /// <param name="value">A value.</param>
         /// <returns><c>true</c> if <c>value</c> is powered by two; otherwise <c>false</c>.</returns>
-	    public static bool IsPowerOfTwo(int value)
-	    {
-	         return (value > 0) && ((value & (value - 1)) == 0);
-	    }
+        public static bool IsPowerOfTwo(int value)
+             => (value > 0f) && ((value & (value - 1f)) == 0f);
     }
 }

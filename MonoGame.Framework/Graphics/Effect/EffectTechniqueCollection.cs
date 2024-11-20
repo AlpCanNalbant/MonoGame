@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
@@ -12,12 +13,10 @@ namespace Microsoft.Xna.Framework.Graphics
         /// <summary>
         /// Gets the number of elements contained in the collection.
         /// </summary>
-        public int Count { get { return _techniques.Length; } }
+        public int Count => _techniques.Length;
 
         internal EffectTechniqueCollection(EffectTechnique[] techniques)
-        {
-            _techniques = techniques;
-        }
+            => _techniques = techniques;
 
         internal EffectTechniqueCollection Clone(Effect effect)
         {
@@ -32,9 +31,7 @@ namespace Microsoft.Xna.Framework.Graphics
         /// Retrieves the <see cref="EffectTechnique"/> at the specified index in the collection.
         /// </summary>
         public EffectTechnique this[int index]
-        {
-            get { return _techniques [index]; }
-        }
+            =>  _techniques [index];
 
         /// <summary>
         /// Retrieves a <see cref="EffectTechnique"/> from the collection, given the name of the technique.
@@ -42,13 +39,14 @@ namespace Microsoft.Xna.Framework.Graphics
         /// <param name="name">The name of the technique to retrieve.</param>
         public EffectTechnique this[string name]
         {
-            get 
+            get
             {
                 // TODO: Add a name to technique lookup table.
-				foreach (var technique in _techniques) 
+                var span = new ReadOnlySpan<EffectTechnique>(_techniques);
+				for (int i = 0; i < span.Length; ++i)
                 {
-					if (technique.Name == name)
-						return technique;
+					if (span[i].Name == name)
+						return span[i];
 			    }
 
 			    return null;
@@ -57,13 +55,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
         /// <inheritdoc/>
         public IEnumerator<EffectTechnique> GetEnumerator()
-        {
-            return ((IEnumerable<EffectTechnique>)_techniques).GetEnumerator();
-        }
+            => ((IEnumerable<EffectTechnique>)_techniques).GetEnumerator();
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return _techniques.GetEnumerator();
-        }
+            => _techniques.GetEnumerator();
     }
 }

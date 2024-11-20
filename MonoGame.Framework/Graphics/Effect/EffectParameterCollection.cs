@@ -7,7 +7,7 @@ namespace Microsoft.Xna.Framework.Graphics
     /// </summary>
     public class EffectParameterCollection : IEnumerable<EffectParameter>
     {
-        internal static readonly EffectParameterCollection Empty = new EffectParameterCollection(new EffectParameter[0]);
+        internal static readonly EffectParameterCollection Empty = new([]);
 
         private readonly EffectParameter[] _parameters;
         private readonly Dictionary<string, int> _indexLookup;
@@ -46,17 +46,13 @@ namespace Microsoft.Xna.Framework.Graphics
         /// Gets the number of elements contained in the collection.
         /// </summary>
         public int Count
-        {
-            get { return _parameters.Length; }
-        }
+            => _parameters.Length;
 
         /// <summary>
         /// Retrieves the <see cref="EffectParameter"/> at the specified index in the collection.
         /// </summary>
         public EffectParameter this[int index]
-		{
-			get { return _parameters[index]; }
-		}
+		    => _parameters[index];
 
         /// <summary>
         /// Retrieves a <see cref="EffectParameter"/> from the collection, given the name of the parameter.
@@ -66,8 +62,7 @@ namespace Microsoft.Xna.Framework.Graphics
         {
             get
             {
-                int index;
-                if (_indexLookup.TryGetValue(name, out index))
+                if (_indexLookup.TryGetValue(name, out int index))
                     return _parameters[index];
                 return null;
 			}
@@ -75,13 +70,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
         /// <inheritdoc/>
         public IEnumerator<EffectParameter> GetEnumerator()
-        {
-            return ((IEnumerable<EffectParameter>)_parameters).GetEnumerator();
-        }
+            => ((IEnumerable<EffectParameter>)_parameters).GetEnumerator();
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return _parameters.GetEnumerator();
-        }
+            => _parameters.GetEnumerator();
     }
 }

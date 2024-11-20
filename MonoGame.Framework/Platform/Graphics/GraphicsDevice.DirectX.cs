@@ -34,7 +34,7 @@ namespace Microsoft.Xna.Framework.Graphics
         // The active depth view.
         SharpDX.Direct3D11.DepthStencilView _currentDepthStencilView;
 
-        private readonly Dictionary<VertexDeclaration, DynamicVertexBuffer> _userVertexBuffers = new Dictionary<VertexDeclaration, DynamicVertexBuffer>();
+        private readonly Dictionary<VertexDeclaration, DynamicVertexBuffer> _userVertexBuffers = [];
         private DynamicIndexBuffer _userIndexBuffer16;
         private DynamicIndexBuffer _userIndexBuffer32;
 
@@ -43,12 +43,7 @@ namespace Microsoft.Xna.Framework.Graphics
         /// For usage, convert this to SharpDX.Direct3D11.Device.
         /// </summary>
         public object Handle
-        {
-            get
-            {
-                return _d3dDevice;
-            }
-        }
+                => _d3dDevice;
 
         private void PlatformSetup()
         {
@@ -107,10 +102,8 @@ namespace Microsoft.Xna.Framework.Graphics
         protected virtual void CreateDeviceResources()
         {
             // Dispose previous references.
-            if (_d3dDevice != null)
-                _d3dDevice.Dispose();
-            if (_d3dContext != null)
-                _d3dContext.Dispose();
+            _d3dDevice?.Dispose();
+            _d3dContext?.Dispose();
 
             // Windows requires BGRA support out of DX.
             var creationFlags = SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport;
@@ -125,18 +118,18 @@ namespace Microsoft.Xna.Framework.Graphics
             FeatureLevel[] featureLevels;
             if (GraphicsProfile == GraphicsProfile.HiDef)
             {
-                featureLevels = new[]
-                    {
+                featureLevels =
+                    [
                         FeatureLevel.Level_11_0,
                         FeatureLevel.Level_10_1,
                         FeatureLevel.Level_10_0,
                         // Feature levels below 10 are not supported for the HiDef profile
-                    };
+                    ];
             }
             else // Reach profile
             {
-                featureLevels = new[]
-                    {
+                featureLevels =
+                    [
                         // For the Reach profile, first try use the highest supported 9_X feature level
                         FeatureLevel.Level_9_3,
                         FeatureLevel.Level_9_2,
@@ -145,7 +138,7 @@ namespace Microsoft.Xna.Framework.Graphics
                         FeatureLevel.Level_11_0,
                         FeatureLevel.Level_10_1,
                         FeatureLevel.Level_10_0,
-                    };
+                    ];
             }
 
             var driverType = DriverType.Hardware;   //Default value
@@ -159,38 +152,34 @@ namespace Microsoft.Xna.Framework.Graphics
                     driverType = DriverType.Warp;
                     break;
             }
-            
+
             try
             {
                 // Create the Direct3D device.
-                using (var defaultDevice = new SharpDX.Direct3D11.Device(driverType, creationFlags, featureLevels))
-                    _d3dDevice = defaultDevice.QueryInterface<SharpDX.Direct3D11.Device>();
+                using var defaultDevice = new SharpDX.Direct3D11.Device(driverType, creationFlags, featureLevels);
+                _d3dDevice = defaultDevice.QueryInterface<SharpDX.Direct3D11.Device>();
             }
             catch (SharpDXException)
             {
                 // Try again without the debug flag.  This allows debug builds to run
                 // on machines that don't have the debug runtime installed.
                 creationFlags &= ~SharpDX.Direct3D11.DeviceCreationFlags.Debug;
-                using (var defaultDevice = new SharpDX.Direct3D11.Device(driverType, creationFlags, featureLevels))
-                    _d3dDevice = defaultDevice.QueryInterface<SharpDX.Direct3D11.Device>();
+                using var defaultDevice = new SharpDX.Direct3D11.Device(driverType, creationFlags, featureLevels);
+                _d3dDevice = defaultDevice.QueryInterface<SharpDX.Direct3D11.Device>();
             }
 
             // Get Direct3D 11.1 context
             _d3dContext = _d3dDevice.ImmediateContext.QueryInterface<SharpDX.Direct3D11.DeviceContext>();
-            
+
             // Create a new instance of GraphicsDebug because we support it on Windows platforms.
             _graphicsDebug = new GraphicsDebug(this);
         }
 
         internal void SetHardwareFullscreen()
-        {
-            _swapChain.SetFullscreenState(PresentationParameters.IsFullScreen && PresentationParameters.HardwareModeSwitch, null);
-        }
+            => _swapChain.SetFullscreenState(PresentationParameters.IsFullScreen && PresentationParameters.HardwareModeSwitch, null);
 
         internal void ClearHardwareFullscreen()
-        {
-            _swapChain.SetFullscreenState(false, null);
-        }
+            => _swapChain.SetFullscreenState(false, null);
 
         internal void ResizeTargets()
         {
@@ -212,9 +201,9 @@ namespace Microsoft.Xna.Framework.Graphics
             if (_swapChain == null)
             {
                 // get the primary output
-                using (var factory = new SharpDX.DXGI.Factory1())
-                using (var adapter = factory.GetAdapter1(0))
-                    output = adapter.Outputs[0];
+                using var factory = new SharpDX.DXGI.Factory1();
+                using var adapter = factory.GetAdapter1(0);
+                output = adapter.Outputs[0];
             }
             else
             {
@@ -241,8 +230,7 @@ namespace Microsoft.Xna.Framework.Graphics
             }
             else
             {
-                ModeDescription closest;
-                output.GetClosestMatchingMode(_d3dDevice, target, out closest);
+                output.GetClosestMatchingMode(_d3dDevice, target, out ModeDescription closest);
                 width = closest.Width;
                 height = closest.Height;
                 output.Dispose();
@@ -298,7 +286,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
             var format = SharpDXHelper.ToFormat(PresentationParameters.BackBufferFormat);
             var multisampleDesc = GetSupportedSampleDescription(
-                format, 
+                format,
                 PresentationParameters.MultiSampleCount);
 
             // If the swap chain already exists... update it.
@@ -350,7 +338,7 @@ namespace Microsoft.Xna.Framework.Graphics
                 // Once the desired swap chain description is configured, it must be created on the same adapter as our D3D Device
 
                 // First, retrieve the underlying DXGI Device from the D3D Device.
-                // Creates the swap chain 
+                // Creates the swap chain
                 using (var dxgiDevice = _d3dDevice.QueryInterface<SharpDX.DXGI.Device1>())
                 using (var dxgiAdapter = dxgiDevice.Adapter)
                 using (var dxgiFactory = dxgiAdapter.GetParent<SharpDX.DXGI.Factory1>())
@@ -362,7 +350,7 @@ namespace Microsoft.Xna.Framework.Graphics
                     // Docs: https://msdn.microsoft.com/en-us/library/windows/desktop/ff471334(v=vs.85).aspx
                     dxgiDevice.MaximumFrameLatency = 1;
                 }
-                // Preserve full screen state, after swap chain is re-created 
+                // Preserve full screen state, after swap chain is re-created
                 if (PresentationParameters.HardwareModeSwitch
                     && wasFullScreen)
                     SetHardwareFullscreen();
@@ -386,7 +374,7 @@ namespace Microsoft.Xna.Framework.Graphics
                 var depthFormat = SharpDXHelper.ToFormat(PresentationParameters.DepthStencilFormat);
 
                 // Allocate a 2-D surface as the depth/stencil buffer.
-                using (var depthBuffer = new SharpDX.Direct3D11.Texture2D(_d3dDevice, new SharpDX.Direct3D11.Texture2DDescription()
+                using var depthBuffer = new SharpDX.Direct3D11.Texture2D(_d3dDevice, new SharpDX.Direct3D11.Texture2DDescription()
                 {
                     Format = depthFormat,
                     ArraySize = 1,
@@ -396,10 +384,10 @@ namespace Microsoft.Xna.Framework.Graphics
                     SampleDescription = multisampleDesc,
                     Usage = SharpDX.Direct3D11.ResourceUsage.Default,
                     BindFlags = SharpDX.Direct3D11.BindFlags.DepthStencil,
-                }))
+                });
 
-                    // Create a DepthStencil view on this surface to use on bind.
-                    _depthStencilView = new SharpDX.Direct3D11.DepthStencilView(_d3dDevice, depthBuffer);
+                // Create a DepthStencil view on this surface to use on bind.
+                _depthStencilView = new SharpDX.Direct3D11.DepthStencilView(_d3dDevice, depthBuffer);
             }
 
             // Set the current viewport.
@@ -457,17 +445,17 @@ namespace Microsoft.Xna.Framework.Graphics
         /// <param name="format">The texture format.</param>
         /// <param name="multiSampleCount">The number of samples during multisampling.</param>
         /// <returns>
-        /// Higher than zero if multiSampleCount is supported. 
+        /// Higher than zero if multiSampleCount is supported.
         /// Zero if multiSampleCount is not supported.
         /// </returns>
         private int GetMultiSamplingQuality(Format format, int multiSampleCount)
-        {
+            // {
             // The valid range is between zero and one less than the level returned by CheckMultisampleQualityLevels
             // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173072(v=vs.85).aspx
-            var quality = _d3dDevice.CheckMultisampleQualityLevels(format, multiSampleCount) - 1;
+            // var quality = _d3dDevice.CheckMultisampleQualityLevels(format, multiSampleCount) - 1;
             // NOTE: should we always return highest quality?
-            return Math.Max(quality, 0); // clamp minimum to 0 
-        }
+            => Math.Max(_d3dDevice.CheckMultisampleQualityLevels(format, multiSampleCount) - 1, 0); // clamp minimum to 0
+        // }
 
         internal SampleDescription GetSupportedSampleDescription(Format format, int multiSampleCount)
         {
@@ -531,10 +519,8 @@ namespace Microsoft.Xna.Framework.Graphics
             SharpDX.Utilities.Dispose(ref _renderTargetView);
             SharpDX.Utilities.Dispose(ref _depthStencilView);
 
-            if (_userIndexBuffer16 != null)
-                _userIndexBuffer16.Dispose();
-            if (_userIndexBuffer32 != null)
-                _userIndexBuffer32.Dispose();
+            _userIndexBuffer16?.Dispose();
+            _userIndexBuffer32?.Dispose();
 
             foreach (var vb in _userVertexBuffers.Values)
                 vb.Dispose();
@@ -626,8 +612,7 @@ namespace Microsoft.Xna.Framework.Graphics
                 var renderTargetBinding = _currentRenderTargetBindings[i];
 
                 // Resolve MSAA render targets
-                var renderTarget = renderTargetBinding.RenderTarget as RenderTarget2D;
-                if (renderTarget != null && renderTarget.MultiSampleCount > 1)
+                if (renderTargetBinding.RenderTarget is RenderTarget2D renderTarget && renderTarget.MultiSampleCount > 1)
                     renderTarget.ResolveSubresource();
 
                 // Generate mipmaps.
@@ -672,28 +657,19 @@ namespace Microsoft.Xna.Framework.Graphics
         }
 
         private static PrimitiveTopology ToPrimitiveTopology(PrimitiveType primitiveType)
-        {
-            switch (primitiveType)
+            => primitiveType switch
             {
-                case PrimitiveType.LineList:
-                    return PrimitiveTopology.LineList;
-                case PrimitiveType.LineStrip:
-                    return PrimitiveTopology.LineStrip;
-                case PrimitiveType.TriangleList:
-                    return PrimitiveTopology.TriangleList;
-                case PrimitiveType.TriangleStrip:
-                    return PrimitiveTopology.TriangleStrip;
-                case PrimitiveType.PointList:
-                    return PrimitiveTopology.PointList;
-            }
-
-            throw new ArgumentException();
-        }
+                PrimitiveType.TriangleList => PrimitiveTopology.TriangleList,
+                PrimitiveType.LineList => PrimitiveTopology.LineList,
+                PrimitiveType.PointList => PrimitiveTopology.PointList,
+                PrimitiveType.TriangleStrip => PrimitiveTopology.TriangleStrip,
+                PrimitiveType.LineStrip => PrimitiveTopology.LineStrip,
+                _ => PrimitiveTopology.TriangleList,
+            };
+        // throw new ArgumentException();
 
         internal void PlatformBeginApplyState()
-        {
-            Debug.Assert(_d3dContext != null, "The d3d context is null!");
-        }
+            => Debug.Assert(_d3dContext != null, "The d3d context is null!");
 
         private void PlatformApplyBlend()
         {
@@ -709,13 +685,11 @@ namespace Microsoft.Xna.Framework.Graphics
         }
 
         private SharpDX.Mathematics.Interop.RawColor4 GetBlendFactor()
-        {
-            return new SharpDX.Mathematics.Interop.RawColor4(
+            => new(
                     BlendFactor.R / 255.0f,
                     BlendFactor.G / 255.0f,
                     BlendFactor.B / 255.0f,
                     BlendFactor.A / 255.0f);
-        }
 
         internal void PlatformApplyState(bool applyShaders)
         {
@@ -773,10 +747,10 @@ namespace Microsoft.Xna.Framework.Graphics
                 }
             }
 
-            if (_vertexShader == null)
-                throw new InvalidOperationException("A vertex shader must be set!");
-            if (_pixelShader == null)
-                throw new InvalidOperationException("A pixel shader must be set!");
+            // if (_vertexShader == null)
+            //     throw new InvalidOperationException("A vertex shader must be set!");
+            // if (_pixelShader == null)
+            //     throw new InvalidOperationException("A pixel shader must be set!");
 
             if (_vertexShaderDirty)
             {
@@ -816,13 +790,11 @@ namespace Microsoft.Xna.Framework.Graphics
         private int SetUserVertexBuffer<T>(T[] vertexData, int vertexOffset, int vertexCount, VertexDeclaration vertexDecl)
             where T : struct
         {
-            DynamicVertexBuffer buffer;
 
-            if (!_userVertexBuffers.TryGetValue(vertexDecl, out buffer) || buffer.VertexCount < vertexCount)
+            if (!_userVertexBuffers.TryGetValue(vertexDecl, out DynamicVertexBuffer buffer) || buffer.VertexCount < vertexCount)
             {
                 // Dispose the previous buffer if we have one.
-                if (buffer != null)
-                    buffer.Dispose();
+                buffer?.Dispose();
 
                 buffer = new DynamicVertexBuffer(this, vertexDecl, Math.Max(vertexCount, 2000), BufferUsage.WriteOnly);
                 _userVertexBuffers[vertexDecl] = buffer;
@@ -861,8 +833,7 @@ namespace Microsoft.Xna.Framework.Graphics
             {
                 if (_userIndexBuffer16 == null || _userIndexBuffer16.IndexCount < requiredIndexCount)
                 {
-                    if (_userIndexBuffer16 != null)
-                        _userIndexBuffer16.Dispose();
+                    _userIndexBuffer16?.Dispose();
 
                     _userIndexBuffer16 = new DynamicIndexBuffer(this, indexElementSize, requiredIndexCount, BufferUsage.WriteOnly);
                 }
@@ -873,8 +844,7 @@ namespace Microsoft.Xna.Framework.Graphics
             {
                 if (_userIndexBuffer32 == null || _userIndexBuffer32.IndexCount < requiredIndexCount)
                 {
-                    if (_userIndexBuffer32 != null)
-                        _userIndexBuffer32.Dispose();
+                    _userIndexBuffer32?.Dispose();
 
                     _userIndexBuffer32 = new DynamicIndexBuffer(this, indexElementSize, requiredIndexCount, BufferUsage.WriteOnly);
                 }
@@ -906,11 +876,58 @@ namespace Microsoft.Xna.Framework.Graphics
             lock (_d3dContext)
             {
                 ApplyState(true);
-
                 _d3dContext.InputAssembler.PrimitiveTopology = ToPrimitiveTopology(primitiveType);
+                _d3dContext.DrawIndexed(GetElementCountArray(primitiveType, primitiveCount), startIndex, baseVertex);
+            }
+        }
 
-                var indexCount = GetElementCountArray(primitiveType, primitiveCount);
-                _d3dContext.DrawIndexed(indexCount, startIndex, baseVertex);
+        private void PlatformDrawIndexedTriangle(int baseVertex, int startIndex, int primitiveCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+                _d3dContext.DrawIndexed(primitiveCount * 3, startIndex, baseVertex);
+            }
+        }
+
+        private void PlatformDrawIndexedTriangleStrip(int baseVertex, int startIndex, int primitiveCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+                _d3dContext.DrawIndexed(primitiveCount + 2, startIndex, baseVertex);
+            }
+        }
+
+        private void PlatformDrawIndexedLine(int baseVertex, int startIndex, int primitiveCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
+                _d3dContext.DrawIndexed(primitiveCount * 2, startIndex, baseVertex);
+            }
+        }
+
+        private void PlatformDrawIndexedLineStrip(int baseVertex, int startIndex, int primitiveCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineStrip;
+                _d3dContext.DrawIndexed(primitiveCount + 1, startIndex, baseVertex);
+            }
+        }
+
+        private void PlatformDrawIndexedPoint(int baseVertex, int startIndex, int primitiveCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
+                _d3dContext.DrawIndexed(primitiveCount, startIndex, baseVertex);
             }
         }
 
@@ -921,8 +938,67 @@ namespace Microsoft.Xna.Framework.Graphics
             lock (_d3dContext)
             {
                 ApplyState(true);
-
                 _d3dContext.InputAssembler.PrimitiveTopology = ToPrimitiveTopology(primitiveType);
+                _d3dContext.Draw(vertexCount, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserTriangle<T>(T[] vertexData, int vertexOffset, VertexDeclaration vertexDeclaration, int vertexCount) where T : struct
+        {
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, vertexCount, vertexDeclaration);
+
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+                _d3dContext.Draw(vertexCount, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserTriangleStrip<T>(T[] vertexData, int vertexOffset, VertexDeclaration vertexDeclaration, int vertexCount) where T : struct
+        {
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, vertexCount, vertexDeclaration);
+
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+                _d3dContext.Draw(vertexCount, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserLine<T>(T[] vertexData, int vertexOffset, VertexDeclaration vertexDeclaration, int vertexCount) where T : struct
+        {
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, vertexCount, vertexDeclaration);
+
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
+                _d3dContext.Draw(vertexCount, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserLineStrip<T>(T[] vertexData, int vertexOffset, VertexDeclaration vertexDeclaration, int vertexCount) where T : struct
+        {
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, vertexCount, vertexDeclaration);
+
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineStrip;
+                _d3dContext.Draw(vertexCount, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserPoint<T>(T[] vertexData, int vertexOffset, VertexDeclaration vertexDeclaration, int vertexCount) where T : struct
+        {
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, vertexCount, vertexDeclaration);
+
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
                 _d3dContext.Draw(vertexCount, startVertex);
             }
         }
@@ -932,7 +1008,6 @@ namespace Microsoft.Xna.Framework.Graphics
             lock (_d3dContext)
             {
                 ApplyState(true);
-
                 _d3dContext.InputAssembler.PrimitiveTopology = ToPrimitiveTopology(primitiveType);
                 _d3dContext.Draw(vertexCount, vertexStart);
             }
@@ -943,11 +1018,9 @@ namespace Microsoft.Xna.Framework.Graphics
             var indexCount = GetElementCountArray(primitiveType, primitiveCount);
             var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
             var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
-
             lock (_d3dContext)
             {
                 ApplyState(true);
-
                 _d3dContext.InputAssembler.PrimitiveTopology = ToPrimitiveTopology(primitiveType);
                 _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
             }
@@ -958,13 +1031,139 @@ namespace Microsoft.Xna.Framework.Graphics
             var indexCount = GetElementCountArray(primitiveType, primitiveCount);
             var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
             var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
-
             lock (_d3dContext)
             {
                 ApplyState(true);
-
                 _d3dContext.InputAssembler.PrimitiveTopology = ToPrimitiveTopology(primitiveType);
                 _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedTriangle<T>(T[] vertexData, int vertexOffset, int numVertices, short[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var indexCount = primitiveCount * 3;
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+                _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedTriangleStrip<T>(T[] vertexData, int vertexOffset, int numVertices, short[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var indexCount = primitiveCount + 2;
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+                _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedLine<T>(T[] vertexData, int vertexOffset, int numVertices, short[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var indexCount = primitiveCount * 2;
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
+                _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedLineStrip<T>(T[] vertexData, int vertexOffset, int numVertices, short[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var indexCount = primitiveCount + 1;
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineStrip;
+                _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedPoint<T>(T[] vertexData, int vertexOffset, int numVertices, short[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, primitiveCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineStrip;
+                _d3dContext.DrawIndexed(primitiveCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedTriangle<T>(T[] vertexData, int vertexOffset, int numVertices, int[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var indexCount = primitiveCount * 3;
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+                _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedTriangleStrip<T>(T[] vertexData, int vertexOffset, int numVertices, int[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var indexCount = primitiveCount + 2;
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+                _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedLine<T>(T[] vertexData, int vertexOffset, int numVertices, int[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var indexCount = primitiveCount * 2;
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
+                _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedLineStrip<T>(T[] vertexData, int vertexOffset, int numVertices, int[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var indexCount = primitiveCount + 1;
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, indexCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineStrip;
+                _d3dContext.DrawIndexed(indexCount, startIndex, startVertex);
+            }
+        }
+
+        private void PlatformDrawUserIndexedPoint<T>(T[] vertexData, int vertexOffset, int numVertices, int[] indexData, int indexOffset, int primitiveCount, VertexDeclaration vertexDeclaration) where T : struct
+        {
+            var startVertex = SetUserVertexBuffer(vertexData, vertexOffset, numVertices, vertexDeclaration);
+            var startIndex = SetUserIndexBuffer(indexData, indexOffset, primitiveCount);
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineStrip;
+                _d3dContext.DrawIndexed(primitiveCount, startIndex, startVertex);
             }
         }
 
@@ -974,10 +1173,63 @@ namespace Microsoft.Xna.Framework.Graphics
             lock (_d3dContext)
             {
                 ApplyState(true);
-
                 _d3dContext.InputAssembler.PrimitiveTopology = ToPrimitiveTopology(primitiveType);
-                int indexCount = GetElementCountArray(primitiveType, primitiveCount);
-                _d3dContext.DrawIndexedInstanced(indexCount, instanceCount, startIndex, baseVertex, baseInstance);
+                _d3dContext.DrawIndexedInstanced(GetElementCountArray(primitiveType, primitiveCount), instanceCount, startIndex, baseVertex, baseInstance);
+            }
+        }
+
+        private void PlatformDrawInstancedTriangle(int baseVertex, int startIndex,
+            int primitiveCount, int baseInstance, int instanceCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+                _d3dContext.DrawIndexedInstanced(primitiveCount * 3, instanceCount, startIndex, baseVertex, baseInstance);
+            }
+        }
+
+        private void PlatformDrawInstancedTriangleStrip(int baseVertex, int startIndex,
+            int primitiveCount, int baseInstance, int instanceCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+                _d3dContext.DrawIndexedInstanced(primitiveCount + 2, instanceCount, startIndex, baseVertex, baseInstance);
+            }
+        }
+
+        private void PlatformDrawInstancedLine(int baseVertex, int startIndex,
+            int primitiveCount, int baseInstance, int instanceCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
+                _d3dContext.DrawIndexedInstanced(primitiveCount * 2, instanceCount, startIndex, baseVertex, baseInstance);
+            }
+        }
+
+        private void PlatformDrawInstancedLineStrip(int baseVertex, int startIndex,
+            int primitiveCount, int baseInstance, int instanceCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineStrip;
+                _d3dContext.DrawIndexedInstanced(primitiveCount + 1, instanceCount, startIndex, baseVertex, baseInstance);
+            }
+        }
+
+        private void PlatformDrawInstancedPoint(int baseVertex, int startIndex,
+            int primitiveCount, int baseInstance, int instanceCount)
+        {
+            lock (_d3dContext)
+            {
+                ApplyState(true);
+                _d3dContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
+                _d3dContext.DrawIndexedInstanced(primitiveCount, instanceCount, startIndex, baseVertex, baseInstance);
             }
         }
 
@@ -987,97 +1239,91 @@ namespace Microsoft.Xna.Framework.Graphics
             // first set up a staging texture
             const SurfaceFormat format = SurfaceFormat.Color;
             //You can't Map the BackBuffer surface, so we copy to another texture
-            using (var backBufferTexture = SharpDX.Direct3D11.Resource.FromSwapChain<SharpDX.Direct3D11.Texture2D>(_swapChain, 0))
+            using var backBufferTexture = SharpDX.Direct3D11.Resource.FromSwapChain<SharpDX.Direct3D11.Texture2D>(_swapChain, 0);
+            var desc = backBufferTexture.Description;
+            desc.SampleDescription = new SampleDescription(1, 0);
+            desc.BindFlags = BindFlags.None;
+            desc.CpuAccessFlags = CpuAccessFlags.Read;
+            desc.Usage = ResourceUsage.Staging;
+            desc.OptionFlags = ResourceOptionFlags.None;
+
+            using var stagingTex = new SharpDX.Direct3D11.Texture2D(_d3dDevice, desc);
+            lock (_d3dContext)
             {
-                var desc = backBufferTexture.Description;
-                desc.SampleDescription = new SampleDescription(1, 0);
-                desc.BindFlags = BindFlags.None;
-                desc.CpuAccessFlags = CpuAccessFlags.Read;
-                desc.Usage = ResourceUsage.Staging;
-                desc.OptionFlags = ResourceOptionFlags.None;
-
-                using (var stagingTex = new SharpDX.Direct3D11.Texture2D(_d3dDevice, desc))
+                // Copy the data from the GPU to the staging texture.
+                // if MSAA is enabled we need to first copy to a resource without MSAA
+                if (backBufferTexture.Description.SampleDescription.Count > 1)
                 {
-                    lock (_d3dContext)
+                    desc.Usage = ResourceUsage.Default;
+                    desc.CpuAccessFlags = CpuAccessFlags.None;
+                    using var noMsTex = new SharpDX.Direct3D11.Texture2D(_d3dDevice, desc);
+                    _d3dContext.ResolveSubresource(backBufferTexture, 0, noMsTex, 0, desc.Format);
+                    if (rect.HasValue)
                     {
-                        // Copy the data from the GPU to the staging texture.
-                        // if MSAA is enabled we need to first copy to a resource without MSAA
-                        if (backBufferTexture.Description.SampleDescription.Count > 1)
+                        var r = rect.Value;
+                        _d3dContext.CopySubresourceRegion(noMsTex, 0,
+                            new ResourceRegion(r.Left, r.Top, 0, r.Right, r.Bottom, 1), stagingTex,
+                            0);
+                    }
+                    else
+                        _d3dContext.CopyResource(noMsTex, stagingTex);
+                }
+                else
+                {
+                    if (rect.HasValue)
+                    {
+                        var r = rect.Value;
+                        _d3dContext.CopySubresourceRegion(backBufferTexture, 0,
+                            new ResourceRegion(r.Left, r.Top, 0, r.Right, r.Bottom, 1), stagingTex, 0);
+                    }
+                    else
+                        _d3dContext.CopyResource(backBufferTexture, stagingTex);
+                }
+
+                // Copy the data to the array.
+                DataStream stream = null;
+                try
+                {
+                    var databox = _d3dContext.MapSubresource(stagingTex, 0, MapMode.Read, SharpDX.Direct3D11.MapFlags.None, out stream);
+
+                    int elementsInRow, rows;
+                    if (rect.HasValue)
+                    {
+                        elementsInRow = rect.Value.Width;
+                        rows = rect.Value.Height;
+                    }
+                    else
+                    {
+                        elementsInRow = stagingTex.Description.Width;
+                        rows = stagingTex.Description.Height;
+                    }
+                    var elementSize = format.GetSize();
+                    var rowSize = elementSize * elementsInRow;
+                    if (rowSize == databox.RowPitch)
+                        stream.ReadRange(data, startIndex, count);
+                    else
+                    {
+                        // Some drivers may add pitch to rows.
+                        // We need to copy each row separately and skip trailing zeroes.
+                        stream.Seek(0, SeekOrigin.Begin);
+
+                        var elementSizeInByte = ReflectionHelpers.SizeOf<T>.Get();
+                        for (var row = 0; row < rows; row++)
                         {
-                            desc.Usage = ResourceUsage.Default;
-                            desc.CpuAccessFlags = CpuAccessFlags.None;
-                            using (var noMsTex = new SharpDX.Direct3D11.Texture2D(_d3dDevice, desc))
-                            {
-                                _d3dContext.ResolveSubresource(backBufferTexture, 0, noMsTex, 0, desc.Format);
-                                if (rect.HasValue)
-                                {
-                                    var r = rect.Value;
-                                    _d3dContext.CopySubresourceRegion(noMsTex, 0,
-                                        new ResourceRegion(r.Left, r.Top, 0, r.Right, r.Bottom, 1), stagingTex,
-                                        0);
-                                }
-                                else
-                                    _d3dContext.CopyResource(noMsTex, stagingTex);
-                            }
-                        }
-                        else
-                        {
-                            if (rect.HasValue)
-                            {
-                                var r = rect.Value;
-                                _d3dContext.CopySubresourceRegion(backBufferTexture, 0,
-                                    new ResourceRegion(r.Left, r.Top, 0, r.Right, r.Bottom, 1), stagingTex, 0);
-                            }
-                            else
-                                _d3dContext.CopyResource(backBufferTexture, stagingTex);
-                        }
+                            int i;
+                            for (i = row * rowSize / elementSizeInByte; i < (row + 1) * rowSize / elementSizeInByte; i++)
+                                data[i + startIndex] = stream.Read<T>();
 
-                        // Copy the data to the array.
-                        DataStream stream = null;
-                        try
-                        {
-                            var databox = _d3dContext.MapSubresource(stagingTex, 0, MapMode.Read, SharpDX.Direct3D11.MapFlags.None, out stream);
+                            if (i >= count)
+                                break;
 
-                            int elementsInRow, rows;
-                            if (rect.HasValue)
-                            {
-                                elementsInRow = rect.Value.Width;
-                                rows = rect.Value.Height;
-                            }
-                            else
-                            {
-                                elementsInRow = stagingTex.Description.Width;
-                                rows = stagingTex.Description.Height;
-                            }
-                            var elementSize = format.GetSize();
-                            var rowSize = elementSize * elementsInRow;
-                            if (rowSize == databox.RowPitch)
-                                stream.ReadRange(data, startIndex, count);
-                            else
-                            {
-                                // Some drivers may add pitch to rows.
-                                // We need to copy each row separately and skip trailing zeroes.
-                                stream.Seek(0, SeekOrigin.Begin);
-
-                                var elementSizeInByte = ReflectionHelpers.SizeOf<T>.Get();
-                                for (var row = 0; row < rows; row++)
-                                {
-                                    int i;
-                                    for (i = row * rowSize / elementSizeInByte; i < (row + 1) * rowSize / elementSizeInByte; i++)
-                                        data[i + startIndex] = stream.Read<T>();
-
-                                    if (i >= count)
-                                        break;
-
-                                    stream.Seek(databox.RowPitch - rowSize, SeekOrigin.Current);
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            SharpDX.Utilities.Dispose(ref stream);
+                            stream.Seek(databox.RowPitch - rowSize, SeekOrigin.Current);
                         }
                     }
+                }
+                finally
+                {
+                    SharpDX.Utilities.Dispose(ref stream);
                 }
             }
         }
@@ -1086,13 +1332,9 @@ namespace Microsoft.Xna.Framework.Graphics
         /// Sends queued-up commands in the command buffer to the graphics processing unit (GPU).
         /// </summary>
         public void Flush()
-        {
-            _d3dContext.Flush();
-        }
+            => _d3dContext.Flush();
 
         private static Rectangle PlatformGetTitleSafeArea(int x, int y, int width, int height)
-        {
-            return new Rectangle(x, y, width, height);
-        }
+            => new(x, y, width, height);
     }
 }

@@ -11,9 +11,14 @@ namespace Microsoft.Xna.Framework
     /// <summary>
     /// Represents a ray with an origin and a direction in 3D space.
     /// </summary>
+    /// <remarks>
+    /// Create a <see cref="Ray"/>.
+    /// </remarks>
+    /// <param name="position">The origin of the <see cref="Ray"/>.</param>
+    /// <param name="direction">The direction of the <see cref="Ray"/>.</param>
     [DataContract]
     [DebuggerDisplay("{DebugDisplayString,nq}")]
-    public struct Ray : IEquatable<Ray>
+    public struct Ray(Vector3 position, Vector3 direction) : IEquatable<Ray>
     {
         #region Public Fields
 
@@ -21,29 +26,16 @@ namespace Microsoft.Xna.Framework
         /// The direction of this <see cref="Ray"/>.
         /// </summary>
         [DataMember]
-        public Vector3 Direction;
-      
+        public Vector3 Direction = direction;
+
         /// <summary>
         /// The origin of this <see cref="Ray"/>.
         /// </summary>
         [DataMember]
-        public Vector3 Position;
+        public Vector3 Position = position;
 
         #endregion
-
-
         #region Public Constructors
-
-        /// <summary>
-        /// Create a <see cref="Ray"/>.
-        /// </summary>
-        /// <param name="position">The origin of the <see cref="Ray"/>.</param>
-        /// <param name="direction">The direction of the <see cref="Ray"/>.</param>
-        public Ray(Vector3 position, Vector3 direction)
-        {
-            this.Position = position;
-            this.Direction = direction;
-        }
 
         #endregion
 
@@ -58,10 +50,8 @@ namespace Microsoft.Xna.Framework
         /// <code>true</code> if the specified <see cref="Object"/> is equal to this <see cref="Ray"/>,
         /// <code>false</code> if it is not.
         /// </returns>
-        public override bool Equals(object obj)
-        {
-            return (obj is Ray) && this.Equals((Ray)obj);
-        }
+        public override readonly bool Equals(object obj)
+            => (obj is Ray ray) && this.Equals(ray);
 
         /// <summary>
         /// Check if the specified <see cref="Ray"/> is equal to this <see cref="Ray"/>.
@@ -71,19 +61,15 @@ namespace Microsoft.Xna.Framework
         /// <code>true</code> if the specified <see cref="Ray"/> is equal to this <see cref="Ray"/>,
         /// <code>false</code> if it is not.
         /// </returns>
-        public bool Equals(Ray other)
-        {
-            return this.Position.Equals(other.Position) && this.Direction.Equals(other.Direction);
-        }
+        public readonly bool Equals(Ray other)
+            => this.Position.Equals(other.Position) && this.Direction.Equals(other.Direction);
 
         /// <summary>
         /// Get a hash code for this <see cref="Ray"/>.
         /// </summary>
         /// <returns>A hash code for this <see cref="Ray"/>.</returns>
-        public override int GetHashCode()
-        {
-            return Position.GetHashCode() ^ Direction.GetHashCode();
-        }
+        public override readonly int GetHashCode()
+            => Position.GetHashCode() ^ Direction.GetHashCode();
 
         // adapted from http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
         /// <summary>
@@ -94,13 +80,13 @@ namespace Microsoft.Xna.Framework
         /// The distance along the ray of the intersection or <code>null</code> if this
         /// <see cref="Ray"/> does not intersect the <see cref="BoundingBox"/>.
         /// </returns>
-        public float? Intersects(BoundingBox box)
+        public readonly float? Intersects(BoundingBox box)
         {
             const float Epsilon = 1e-6f;
 
             float? tMin = null, tMax = null;
 
-            if (Math.Abs(Direction.X) < Epsilon)
+            if (MathF.Abs(Direction.X) < Epsilon)
             {
                 if (Position.X < box.Min.X || Position.X > box.Max.X)
                     return null;
@@ -118,7 +104,7 @@ namespace Microsoft.Xna.Framework
                 }
             }
 
-            if (Math.Abs(Direction.Y) < Epsilon)
+            if (MathF.Abs(Direction.Y) < Epsilon)
             {
                 if (Position.Y < box.Min.Y || Position.Y > box.Max.Y)
                     return null;
@@ -142,7 +128,7 @@ namespace Microsoft.Xna.Framework
                 if (!tMax.HasValue || tMaxY < tMax) tMax = tMaxY;
             }
 
-            if (Math.Abs(Direction.Z) < Epsilon)
+            if (MathF.Abs(Direction.Z) < Epsilon)
             {
                 if (Position.Z < box.Min.Z || Position.Z > box.Max.Z)
                     return null;
@@ -172,7 +158,7 @@ namespace Microsoft.Xna.Framework
 
             // a negative tMin means that the intersection point is behind the ray's origin
             // we discard these as not hitting the AABB
-            if (tMin < 0) return null;
+            if (tMin < 0f) return null;
 
             return tMin;
         }
@@ -185,10 +171,8 @@ namespace Microsoft.Xna.Framework
         /// The distance along the ray of the intersection or <code>null</code> if this
         /// <see cref="Ray"/> does not intersect the <see cref="BoundingBox"/>.
         /// </param>
-        public void Intersects(ref BoundingBox box, out float? result)
-        {
-			result = Intersects(box);
-        }
+        public readonly void Intersects(ref BoundingBox box, out float? result)
+            => result = Intersects(box);
 
         /*
         public float? Intersects(BoundingFrustum frustum)
@@ -197,8 +181,8 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("frustum");
 			}
-			
-			return frustum.Intersects(this);			
+
+			return frustum.Intersects(this);
         }
         */
 
@@ -212,8 +196,7 @@ namespace Microsoft.Xna.Framework
         /// </returns>
         public float? Intersects(BoundingSphere sphere)
         {
-            float? result;
-            Intersects(ref sphere, out result);
+            Intersects(ref sphere, out float? result);
             return result;
         }
 
@@ -225,10 +208,9 @@ namespace Microsoft.Xna.Framework
         /// The distance along the ray of the intersection or <code>null</code> if this
         /// <see cref="Ray"/> does not intersect the <see cref="Plane"/>.
         /// </returns>
-        public float? Intersects(Plane plane)
+        public readonly float? Intersects(Plane plane)
         {
-            float? result;
-            Intersects(ref plane, out result);
+            Intersects(ref plane, out float? result);
             return result;
         }
 
@@ -240,10 +222,10 @@ namespace Microsoft.Xna.Framework
         /// The distance along the ray of the intersection or <code>null</code> if this
         /// <see cref="Ray"/> does not intersect the <see cref="Plane"/>.
         /// </param>
-        public void Intersects(ref Plane plane, out float? result)
+        public readonly void Intersects(ref Plane plane, out float? result)
         {
             var den = Vector3.Dot(Direction, plane.Normal);
-            if (Math.Abs(den) < 0.00001f)
+            if (MathF.Abs(den) < 0.00001f)
             {
                 result = null;
                 return;
@@ -279,7 +261,6 @@ namespace Microsoft.Xna.Framework
             float differenceLengthSquared = difference.LengthSquared();
             float sphereRadiusSquared = sphere.Radius * sphere.Radius;
 
-            float distanceAlongRay;
 
             // If the distance between the ray start and the sphere's centre is less than
             // the radius of the sphere, it means we've intersected. N.B. checking the LengthSquared is faster.
@@ -289,9 +270,9 @@ namespace Microsoft.Xna.Framework
                 return;
             }
 
-            Vector3.Dot(ref this.Direction, ref difference, out distanceAlongRay);
+            Vector3.Dot(ref this.Direction, ref difference, out float distanceAlongRay);
             // If the ray is pointing away from the sphere then we don't ever intersect
-            if (distanceAlongRay < 0)
+            if (distanceAlongRay < 0f)
             {
                 result = null;
                 return;
@@ -304,7 +285,7 @@ namespace Microsoft.Xna.Framework
             // if x^2 + z^2 - y^2 < 0, we do not intersect
             float dist = sphereRadiusSquared + distanceAlongRay * distanceAlongRay - differenceLengthSquared;
 
-            result = (dist < 0) ? null : distanceAlongRay - (float?)MathF.Sqrt(dist);
+            result = (dist < 0f) ? null : distanceAlongRay - MathF.Sqrt(dist);
         }
 
         /// <summary>
@@ -314,9 +295,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="b">A ray to check for inequality.</param>
         /// <returns><code>true</code> if the two rays are not equal, <code>false</code> if they are.</returns>
         public static bool operator !=(Ray a, Ray b)
-        {
-            return !a.Equals(b);
-        }
+            => !a.Equals(b);
 
         /// <summary>
         /// Check if two rays are equal.
@@ -325,36 +304,28 @@ namespace Microsoft.Xna.Framework
         /// <param name="b">A ray to check for equality.</param>
         /// <returns><code>true</code> if the two rays are equals, <code>false</code> if they are not.</returns>
         public static bool operator ==(Ray a, Ray b)
-        {
-            return a.Equals(b);
-        }
+            => a.Equals(b);
 
-        internal string DebugDisplayString
-        {
-            get
-            {
-                return string.Concat(
+        internal readonly string DebugDisplayString
+            =>
+                 string.Concat(
                     "Pos( ", this.Position.DebugDisplayString, " )  \r\n",
                     "Dir( ", this.Direction.DebugDisplayString, " )"
                 );
-            }
-        }
 
         /// <summary>
         /// Get a <see cref="String"/> representation of this <see cref="Ray"/>.
         /// </summary>
         /// <returns>A <see cref="String"/> representation of this <see cref="Ray"/>.</returns>
-        public override string ToString()
-        {
-            return "{{Position:" + Position.ToString() + " Direction:" + Direction.ToString() + "}}";
-        }
+        public override readonly string ToString()
+            => "{{Position:" + Position.ToString() + " Direction:" + Direction.ToString() + "}}";
 
         /// <summary>
         /// Deconstruction method for <see cref="Ray"/>.
         /// </summary>
         /// <param name="position">Receives the start position of the ray.</param>
         /// <param name="direction">Receives the direction of the ray.</param>
-        public void Deconstruct(out Vector3 position, out Vector3 direction)
+        public readonly void Deconstruct(out Vector3 position, out Vector3 direction)
         {
             position = Position;
             direction = Direction;

@@ -198,9 +198,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value">The proposed new value of TargetElapsedTime.</param>
         /// <returns>The new value of TargetElapsedTime that will be set.</returns>
         public virtual TimeSpan TargetElapsedTimeChanging(TimeSpan value)
-        {
-            return value;
-        }
+            => value;
         /// <summary>
         /// Starts a device transition (windowed to full screen or vice versa).
         /// </summary>
@@ -279,18 +277,17 @@ namespace Microsoft.Xna.Framework
                 disposed = true;
             }
         }
-		
+
 		/// <summary>
 		/// Log the specified Message.
 		/// </summary>
 		/// <param name='Message'>
-		/// 
+		///
 		/// </param>
 		[System.Diagnostics.Conditional("DEBUG")]
-		public virtual void Log(string Message) {}		
-			
+		public virtual void Log(string Message) {}
+
 
         #endregion
     }
 }
-

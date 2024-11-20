@@ -18,7 +18,7 @@ namespace Microsoft.Xna.Framework
     {
         #region Private Fields
 
-        private static readonly Point zeroPoint = new Point();
+        private static readonly Point zeroPoint = new();
 
         #endregion
 
@@ -44,24 +44,17 @@ namespace Microsoft.Xna.Framework
         /// Returns a <see cref="Point"/> with coordinates 0, 0.
         /// </summary>
         public static Point Zero
-        {
-            get { return zeroPoint; }
-        }
+            => zeroPoint;
 
         #endregion
 
         #region Internal Properties
 
-        internal string DebugDisplayString
-        {
-            get
-            {
-                return string.Concat(
+        internal readonly string DebugDisplayString
+            => string.Concat(
                     this.X.ToString(), "  ",
                     this.Y.ToString()
                 );
-            }
-        }
 
         #endregion
 
@@ -99,9 +92,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source <see cref="Point"/> on the right of the add sign.</param>
         /// <returns>Sum of the points.</returns>
         public static Point operator +(Point value1, Point value2)
-        {
-            return new Point(value1.X + value2.X, value1.Y + value2.Y);
-        }
+            => new  (value1.X + value2.X, value1.Y + value2.Y);
 
         /// <summary>
         /// Subtracts a <see cref="Point"/> from a <see cref="Point"/>.
@@ -110,9 +101,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source <see cref="Point"/> on the right of the sub sign.</param>
         /// <returns>Result of the subtraction.</returns>
         public static Point operator -(Point value1, Point value2)
-        {
-            return new Point(value1.X - value2.X, value1.Y - value2.Y);
-        }
+            => new  (value1.X - value2.X, value1.Y - value2.Y);
 
         /// <summary>
         /// Multiplies the components of two points by each other.
@@ -121,9 +110,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source <see cref="Point"/> on the right of the mul sign.</param>
         /// <returns>Result of the multiplication.</returns>
         public static Point operator *(Point value1, Point value2)
-        {
-            return new Point(value1.X * value2.X, value1.Y * value2.Y);
-        }
+            => new  (value1.X * value2.X, value1.Y * value2.Y);
 
         /// <summary>
         /// Divides the components of a <see cref="Point"/> by the components of another <see cref="Point"/>.
@@ -132,9 +119,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="divisor">Divisor <see cref="Point"/> on the right of the div sign.</param>
         /// <returns>The result of dividing the points.</returns>
         public static Point operator /(Point source, Point divisor)
-        {
-            return new Point(source.X / divisor.X, source.Y / divisor.Y);
-        }
+            => new  (source.X / divisor.X, source.Y / divisor.Y);
 
         /// <summary>
         /// Compares whether two <see cref="Point"/> instances are equal.
@@ -143,20 +128,16 @@ namespace Microsoft.Xna.Framework
         /// <param name="b"><see cref="Point"/> instance on the right of the equal sign.</param>
         /// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
         public static bool operator ==(Point a, Point b)
-        {
-            return a.Equals(b);
-        }
+            => a.Equals(b);
 
         /// <summary>
         /// Compares whether two <see cref="Point"/> instances are not equal.
         /// </summary>
         /// <param name="a"><see cref="Point"/> instance on the left of the not equal sign.</param>
         /// <param name="b"><see cref="Point"/> instance on the right of the not equal sign.</param>
-        /// <returns><c>true</c> if the instances are not equal; <c>false</c> otherwise.</returns>	
+        /// <returns><c>true</c> if the instances are not equal; <c>false</c> otherwise.</returns>
         public static bool operator !=(Point a, Point b)
-        {
-            return !a.Equals(b);
-        }
+            => !a.Equals(b);
 
         #endregion
 
@@ -167,63 +148,46 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         /// <param name="obj">The <see cref="Object"/> to compare.</param>
         /// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
-        public override bool Equals(object obj)
-        {
-            return (obj is Point) && Equals((Point)obj);
-        }
+        public override readonly bool Equals(object obj)
+            => (obj is Point point) && Equals(point);
 
         /// <summary>
         /// Compares whether current instance is equal to specified <see cref="Point"/>.
         /// </summary>
         /// <param name="other">The <see cref="Point"/> to compare.</param>
         /// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
-        public bool Equals(Point other)
-        {
-            return ((X == other.X) && (Y == other.Y));
-        }
+        public readonly bool Equals(Point other)
+            => ((X == other.X) && (Y == other.Y));
 
         /// <summary>
         /// Gets the hash code of this <see cref="Point"/>.
         /// </summary>
         /// <returns>Hash code of this <see cref="Point"/>.</returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hash = 17;
-                hash = hash * 23 + X.GetHashCode();
-                hash = hash * 23 + Y.GetHashCode();
-                return hash;
-            }
-
-        }
+        public override readonly int GetHashCode()
+            => HashCode.Combine(X, Y);
 
         /// <summary>
         /// Returns a <see cref="String"/> representation of this <see cref="Point"/> in the format:
         /// {X:[<see cref="X"/>] Y:[<see cref="Y"/>]}
         /// </summary>
         /// <returns><see cref="String"/> representation of this <see cref="Point"/>.</returns>
-        public override string ToString()
-        {
-            return "{X:" + X + " Y:" + Y + "}";
-        }
+        public override readonly string ToString()
+            => "{X:" + X + " Y:" + Y + "}";
 
         /// <summary>
         /// Gets a <see cref="Vector2"/> representation for this object.
         /// </summary>
         /// <returns>A <see cref="Vector2"/> representation for this object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vector2 ToVector2()
-        {
-            return new Vector2(X, Y);
-        }
+        public readonly Vector2 ToVector2()
+            => new (X, Y);
 
         /// <summary>
         /// Deconstruction method for <see cref="Point"/>.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public void Deconstruct(out int x, out int y)
+        public readonly void Deconstruct(out int x, out int y)
         {
             x = X;
             y = Y;
@@ -232,5 +196,3 @@ namespace Microsoft.Xna.Framework
         #endregion
     }
 }
-
-

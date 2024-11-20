@@ -23,25 +23,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
         internal GraphicsResource()
         {
-            
         }
 
         /// <summary/>
         ~GraphicsResource()
-        {
             // Pass false so the managed objects are not released
-            Dispose(false);
-        }
+            => Dispose(false);
 
         /// <summary>
-        /// Called before the device is reset. Allows graphics resources to 
+        /// Called before the device is reset. Allows graphics resources to
         /// invalidate their state so they can be recreated after the device reset.
         /// Warning: This may be called after a call to Dispose() up until
         /// the resource is garbage collected.
         /// </summary>
         internal protected virtual void GraphicsDeviceResetting()
         {
-
         }
 
         /// <inheritdoc cref="IDisposable.Dispose()"/>
@@ -76,8 +72,7 @@ namespace Microsoft.Xna.Framework.Graphics
                     EventHelpers.Raise(this, Disposing, EventArgs.Empty);
 
                 // Remove from the global list of graphics resources
-                if (graphicsDevice != null)
-                    graphicsDevice.RemoveResourceReference(_selfReference);
+                graphicsDevice?.RemoveResourceReference(_selfReference);
 
                 _selfReference = null;
                 graphicsDevice = null;
@@ -97,10 +92,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public GraphicsDevice GraphicsDevice
 		{
 			get
-			{
-				return graphicsDevice;
-			}
-
+				=> graphicsDevice;
             internal set
             {
                 Debug.Assert(value != null);
@@ -127,12 +119,7 @@ namespace Microsoft.Xna.Framework.Graphics
         /// Gets a value that indicates whether the object is disposed.
         /// </summary>
 		public bool IsDisposed
-		{
-			get
-			{
-				return disposed;
-			}
-		}
+				=> disposed;
 
         /// <summary>
         /// Gets the name of the resource.
@@ -148,9 +135,6 @@ namespace Microsoft.Xna.Framework.Graphics
         /// Gets a string representation of the current instance.
         /// </summary>
         public override string ToString()
-        {
-            return string.IsNullOrEmpty(Name) ? base.ToString() : Name;
-        }
+            => string.IsNullOrEmpty(Name) ? base.ToString() : Name;
 	}
 }
-

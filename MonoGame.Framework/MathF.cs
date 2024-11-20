@@ -7,63 +7,41 @@ namespace System
 #if (!NETCOREAPP && !NETSTANDARD2_1) || NETCOREAPP1_0 || NETCOREAPP1_1
     internal static class MathF
     {
-        public const float E = (float)Math.E;
-        public const float PI = (float)Math.PI;
+        public const float E = MathF.E;
+        public const float PI = MathF.PI;
 
         public static float Sqrt(float f)
-        {
-            return (float)Math.Sqrt(f);
-        }
+            => MathF.Sqrt(f);
 
         public static float Pow(float x, float y)
-        {
-            return (float)Math.Pow(x, y);
-        }
+            => MathF.Pow(x, y);
 
         public static float Sin(float f)
-        {
-            return (float)Math.Sin(f);
-        }
+            => MathF.Sin(f);
 
         public static float Cos(float f)
-        {
-            return (float)Math.Cos(f);
-        }
+            => MathF.Cos(f);
 
         public static float Tan(float f)
-        {
-            return (float)Math.Tan(f);
-        }
+            => MathF.Tan(f);
 
         public static float Asin(float f)
-        {
-            return (float)Math.Asin(f);
-        }
+            => MathF.Asin(f);
 
         public static float Acos(float f)
-        {
-            return (float)Math.Acos(f);
-        }
+            => MathF.Acos(f);
 
         public static float Atan(float f)
-        {
-            return (float)Math.Atan(f);
-        }
+            => MathF.Atan(f);
 
         public static float Round(float f)
-        {
-            return (float)Math.Round(f);
-        }
+            => MathF.Round(f);
 
         public static float Ceiling(float f)
-        {
-            return (float)Math.Ceiling(f);
-        }
+            => MathF.Ceiling(f);
 
         public static float Floor(float f)
-        {
-            return (float)Math.Floor(f);
-        }
+            => MathF.Floor(f);
     }
 #endif
 }

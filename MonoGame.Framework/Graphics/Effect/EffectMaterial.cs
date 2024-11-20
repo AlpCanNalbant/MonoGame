@@ -14,14 +14,11 @@ namespace Microsoft.Xna.Framework.Graphics
     /// are also loaded and automatically set on the effect, in addition to the HLSL shader code.
     /// Use this class to write a content pipeline extension to store materials inside a custom data type.
     /// </remarks>
-	public class EffectMaterial : Effect
+    /// <remarks>
+    /// Creates a new instance of <see cref="EffectMaterial"/>.
+    /// </remarks>
+    /// <param name="cloneSource">An instance of an object to copy initialization data from.</param>
+    public class EffectMaterial(Effect cloneSource) : Effect(cloneSource)
 	{
-        /// <summary>
-        /// Creates a new instance of <see cref="EffectMaterial"/>.
-        /// </summary>
-        /// <param name="cloneSource">An instance of an object to copy initialization data from.</param>
-		public EffectMaterial (Effect cloneSource) : base(cloneSource)
-		{
-		}
-	}
+    }
 }
