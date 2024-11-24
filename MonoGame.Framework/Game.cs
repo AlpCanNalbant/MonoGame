@@ -457,7 +457,13 @@ namespace Microsoft.Xna.Framework
             case GameRunBehavior.Synchronous:
                 // XNA runs one Update even before showing the window
                 // DoUpdate(new GameTime());
-
+                {
+                    var gameTime = new GameTime();
+                    if (Platform.BeforeUpdate(gameTime))
+                    {
+                        Update(gameTime);
+                    }
+                }
                 Platform.RunLoop();
                 break;
             default:
@@ -536,6 +542,10 @@ namespace Microsoft.Xna.Framework
                     ++stepCount;
 
                     // DoUpdate(_gameTime);
+                    if (Platform.BeforeUpdate(_gameTime))
+                    {
+                        Update(_gameTime);
+                    }
                 }
 
                 //Every update after the first accumulates lag
@@ -569,6 +579,10 @@ namespace Microsoft.Xna.Framework
                 _accumulatedElapsedTime = TimeSpan.Zero;
 
                 // DoUpdate(_gameTime);
+                if (Platform.BeforeUpdate(_gameTime))
+                {
+                    Update(_gameTime);
+                }
             }
 
             // Draw unless the update suppressed it.
@@ -576,7 +590,11 @@ namespace Microsoft.Xna.Framework
                 _suppressDraw = false;
             else
             {
-                DoDraw(_gameTime);
+                if (Platform.BeforeDraw(_gameTime) && BeginDraw())
+                {
+                    Draw(_gameTime);
+                    EndDraw();
+                }
             }
 
             if (_shouldExit)
@@ -607,8 +625,8 @@ namespace Microsoft.Xna.Framework
         /// <returns>
         ///   <code>true</code> if <see cref="Draw"/> should be called, <code>false</code> if it should not.
         /// </returns>
-        // (WCS Edit) Inline it.
-        protected virtual bool BeginDraw() => true;
+        // (WCS Edit) Make it abstract.
+        protected abstract bool BeginDraw();
 
         /// <summary>
         /// Called right after <see cref="Draw"/>. Presents the
@@ -616,7 +634,6 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         protected virtual void EndDraw()
             => Platform.Present();
-
 
         /// <summary>
         /// Called after <see cref="Initialize"/>, but before the first call to <see cref="Update"/>.
@@ -788,33 +805,33 @@ namespace Microsoft.Xna.Framework
         // (WCS Edit) Unnecessary method to run on every frame.
         // internal void DoUpdate(GameTime gameTime)
         // {
-        //     AssertNotDisposed();
+        //     // AssertNotDisposed();
         //     if (Platform.BeforeUpdate(gameTime))
         //     {
         //         // (WCS Edit) FNA library is used for FrameworkDispatcher.
-        //         FrameworkDispatcher.Update();
+        //         // FrameworkDispatcher.Update();
 
         //         // (WCS Edit) We doesnt have any game component.
         //         Update(gameTime);
 
         //         // The TouchPanel needs to know the time for when touches arrive
         //         // (WCS Edit) We doesn't have any touch panel.
-        //         TouchPanelState.CurrentTimestamp = gameTime.TotalGameTime;
+        //         // TouchPanelState.CurrentTimestamp = gameTime.TotalGameTime;
         //     }
         // }
 
-        internal void DoDraw(GameTime gameTime)
-        {
-            AssertNotDisposed();
-            // Draw and EndDraw should not be called if BeginDraw returns false.
-            // http://stackoverflow.com/questions/4054936/manual-control-over-when-to-redraw-the-screen/4057180#4057180
-            // http://stackoverflow.com/questions/4235439/xna-3-1-to-4-0-requires-constant-redraw-or-will-display-a-purple-screen
-            if (Platform.BeforeDraw(gameTime) && BeginDraw())
-            {
-                Draw(gameTime);
-                EndDraw();
-            }
-        }
+        // internal void DoDraw(GameTime gameTime)
+        // {
+        //     // AssertNotDisposed();
+        //     // Draw and EndDraw should not be called if BeginDraw returns false.
+        //     // http://stackoverflow.com/questions/4054936/manual-control-over-when-to-redraw-the-screen/4057180#4057180
+        //     // http://stackoverflow.com/questions/4235439/xna-3-1-to-4-0-requires-constant-redraw-or-will-display-a-purple-screen
+        //     if (Platform.BeforeDraw(gameTime) && BeginDraw())
+        //     {
+        //         Draw(gameTime);
+        //         EndDraw();
+        //     }
+        // }
 
         internal void DoInitialize()
         {

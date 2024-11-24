@@ -55,7 +55,7 @@ namespace Microsoft.Xna.Framework
         /// Gets the near plane of the frustum.
         /// </summary>
         public Plane Near
-        => this._planes[0];
+            => this._planes[0];
 
         /// <summary>
         /// Gets the far plane of the frustum.
@@ -85,7 +85,7 @@ namespace Microsoft.Xna.Framework
         /// Gets the bottom plane of the frustum.
         /// </summary>
         public Plane Bottom
-            =>this._planes[5];
+            => this._planes[5];
 
         #endregion
 
@@ -271,7 +271,7 @@ namespace Microsoft.Xna.Framework
             for (var i = 0; i < PlaneCount; ++i)
             {
                 // TODO: we might want to inline this for performance reasons
-                if (PlaneHelper.ClassifyPoint(ref point, ref this._planes[i]) > 0f)
+                if (PlaneHelper.ClassifyPoint(ref point, ref this._planes[i]) > 0)
                 {
                     result = ContainmentType.Disjoint;
                     return;
@@ -310,12 +310,12 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         /// <param name="corners">The array which values will be replaced to corner values of this instance. It must have size of <see cref="BoundingFrustum.CornerCount"/>.</param>
 		public void GetCorners(Vector3[] corners)
-        // {
-            // ArgumentNullException.ThrowIfNull(corners);
-            // if (corners.Length < CornerCount) throw new ArgumentOutOfRangeException("corners");
+        {
+            ArgumentNullException.ThrowIfNull(corners);
+            if (corners.Length < CornerCount) throw new ArgumentOutOfRangeException(nameof(corners));
 
-            => this._corners.CopyTo(corners, 0);
-        // }
+            this._corners.CopyTo(corners, 0);
+        }
 
         /// <summary>
         /// Gets the hash code of this <see cref="BoundingFrustum"/>.
@@ -429,11 +429,9 @@ namespace Microsoft.Xna.Framework
                     result = 0.0f;
                     return;
                 case ContainmentType.Intersects:
-                    result = null;
-                    return;
+                    throw new NotImplementedException();
                 default:
-                    result = null;
-                    return;
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

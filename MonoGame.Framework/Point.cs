@@ -51,7 +51,7 @@ namespace Microsoft.Xna.Framework
         #region Internal Properties
 
         internal readonly string DebugDisplayString
-            => string.Concat(
+                => string.Concat(
                     this.X.ToString(), "  ",
                     this.Y.ToString()
                 );
@@ -92,7 +92,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source <see cref="Point"/> on the right of the add sign.</param>
         /// <returns>Sum of the points.</returns>
         public static Point operator +(Point value1, Point value2)
-            => new  (value1.X + value2.X, value1.Y + value2.Y);
+            => new (value1.X + value2.X, value1.Y + value2.Y);
 
         /// <summary>
         /// Subtracts a <see cref="Point"/> from a <see cref="Point"/>.
@@ -101,7 +101,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source <see cref="Point"/> on the right of the sub sign.</param>
         /// <returns>Result of the subtraction.</returns>
         public static Point operator -(Point value1, Point value2)
-            => new  (value1.X - value2.X, value1.Y - value2.Y);
+            => new (value1.X - value2.X, value1.Y - value2.Y);
 
         /// <summary>
         /// Multiplies the components of two points by each other.
@@ -110,7 +110,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="value2">Source <see cref="Point"/> on the right of the mul sign.</param>
         /// <returns>Result of the multiplication.</returns>
         public static Point operator *(Point value1, Point value2)
-            => new  (value1.X * value2.X, value1.Y * value2.Y);
+            => new (value1.X * value2.X, value1.Y * value2.Y);
 
         /// <summary>
         /// Divides the components of a <see cref="Point"/> by the components of another <see cref="Point"/>.
@@ -119,7 +119,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="divisor">Divisor <see cref="Point"/> on the right of the div sign.</param>
         /// <returns>The result of dividing the points.</returns>
         public static Point operator /(Point source, Point divisor)
-            => new  (source.X / divisor.X, source.Y / divisor.Y);
+            => new (source.X / divisor.X, source.Y / divisor.Y);
 
         /// <summary>
         /// Compares whether two <see cref="Point"/> instances are equal.

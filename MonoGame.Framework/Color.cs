@@ -406,7 +406,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="obj">The <see cref="Color"/> to compare.</param>
         /// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
         public override readonly bool Equals(object obj)
-            => ((obj is Color color) && this.Equals(color));
+            => (obj is Color color) && this.Equals(color);
 
         #region Color Bank
 
@@ -1726,7 +1726,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="scale">The value to multiply the RGBA component values by.</param>
         /// <returns>The new color value created as a result of the multiplication.</returns>
         public static Color Multiply(Color value, float scale)
-	        => new  ((int)(value.R * scale), (int)(value.G * scale), (int)(value.B * scale), (int)(value.A * scale));
+	        => new ((int)(value.R * scale), (int)(value.G * scale), (int)(value.B * scale), (int)(value.A * scale));
 
 	    /// <summary>
         /// Multiplies the RGBA component values of a color by the specified value.
@@ -1735,7 +1735,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="scale">The value to multiply the RGBA component values by.</param>
         /// <returns>The new color value created as a result of the multiplication.</returns>
 	    public static Color operator *(Color value, float scale)
-            => new  ((int)(value.R * scale), (int)(value.G * scale), (int)(value.B * scale), (int)(value.A * scale));
+            => new ((int)(value.R * scale), (int)(value.G * scale), (int)(value.B * scale), (int)(value.A * scale));
 
         /// <summary>
         /// Multiplies the RGBA component values of a color by the specified value.
@@ -1771,15 +1771,12 @@ namespace Microsoft.Xna.Framework
 
 
         internal readonly string DebugDisplayString
-        {
-            get
                 => string.Concat(
                     this.R.ToString(), "  ",
                     this.G.ToString(), "  ",
                     this.B.ToString(), "  ",
                     this.A.ToString()
                 );
-        }
 
 
         /// <summary>
@@ -1829,7 +1826,7 @@ namespace Microsoft.Xna.Framework
         /// <param name="other">The <see cref="Color"/> to compare.</param>
         /// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
         public readonly bool Equals(Color other)
-	    => this.PackedValue == other.PackedValue;
+	        => this.PackedValue == other.PackedValue;
 
         #endregion
 

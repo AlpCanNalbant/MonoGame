@@ -86,7 +86,7 @@ namespace Microsoft.Xna.Framework
 
             float? tMin = null, tMax = null;
 
-            if (MathF.Abs(Direction.X) < Epsilon)
+            if (Math.Abs(Direction.X) < Epsilon)
             {
                 if (Position.X < box.Min.X || Position.X > box.Max.X)
                     return null;
@@ -104,7 +104,7 @@ namespace Microsoft.Xna.Framework
                 }
             }
 
-            if (MathF.Abs(Direction.Y) < Epsilon)
+            if (Math.Abs(Direction.Y) < Epsilon)
             {
                 if (Position.Y < box.Min.Y || Position.Y > box.Max.Y)
                     return null;
@@ -128,7 +128,7 @@ namespace Microsoft.Xna.Framework
                 if (!tMax.HasValue || tMaxY < tMax) tMax = tMaxY;
             }
 
-            if (MathF.Abs(Direction.Z) < Epsilon)
+            if (Math.Abs(Direction.Z) < Epsilon)
             {
                 if (Position.Z < box.Min.Z || Position.Z > box.Max.Z)
                     return null;
@@ -158,7 +158,7 @@ namespace Microsoft.Xna.Framework
 
             // a negative tMin means that the intersection point is behind the ray's origin
             // we discard these as not hitting the AABB
-            if (tMin < 0f) return null;
+            if (tMin < 0) return null;
 
             return tMin;
         }
@@ -172,7 +172,7 @@ namespace Microsoft.Xna.Framework
         /// <see cref="Ray"/> does not intersect the <see cref="BoundingBox"/>.
         /// </param>
         public readonly void Intersects(ref BoundingBox box, out float? result)
-            => result = Intersects(box);
+			=> result = Intersects(box);
 
         /*
         public float? Intersects(BoundingFrustum frustum)
@@ -225,7 +225,7 @@ namespace Microsoft.Xna.Framework
         public readonly void Intersects(ref Plane plane, out float? result)
         {
             var den = Vector3.Dot(Direction, plane.Normal);
-            if (MathF.Abs(den) < 0.00001f)
+            if (Math.Abs(den) < 0.00001f)
             {
                 result = null;
                 return;
@@ -272,7 +272,7 @@ namespace Microsoft.Xna.Framework
 
             Vector3.Dot(ref this.Direction, ref difference, out float distanceAlongRay);
             // If the ray is pointing away from the sphere then we don't ever intersect
-            if (distanceAlongRay < 0f)
+            if (distanceAlongRay < 0)
             {
                 result = null;
                 return;
@@ -285,7 +285,7 @@ namespace Microsoft.Xna.Framework
             // if x^2 + z^2 - y^2 < 0, we do not intersect
             float dist = sphereRadiusSquared + distanceAlongRay * distanceAlongRay - differenceLengthSquared;
 
-            result = (dist < 0f) ? null : distanceAlongRay - MathF.Sqrt(dist);
+            result = (dist < 0) ? null : distanceAlongRay - (float?)MathF.Sqrt(dist);
         }
 
         /// <summary>
@@ -307,8 +307,7 @@ namespace Microsoft.Xna.Framework
             => a.Equals(b);
 
         internal readonly string DebugDisplayString
-            =>
-                 string.Concat(
+            => string.Concat(
                     "Pos( ", this.Position.DebugDisplayString, " )  \r\n",
                     "Dir( ", this.Direction.DebugDisplayString, " )"
                 );

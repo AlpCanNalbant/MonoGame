@@ -40,7 +40,8 @@ namespace Microsoft.Xna.Framework
         #region Internal Properties
 
         internal readonly string DebugDisplayString
-                => string.Concat(
+            =>
+                string.Concat(
                     "Center( ", this.Center.DebugDisplayString, " )  \r\n",
                     "Radius( ", this.Radius.ToString(), " )"
                     );
@@ -76,7 +77,7 @@ namespace Microsoft.Xna.Framework
                 return ContainmentType.Contains;
 
             //check if the distance from sphere center to cube face < radius
-            float dmin = 0f;
+            double dmin = 0;
 
             if (Center.X < box.Min.X)
 				dmin += (Center.X - box.Min.X) * (Center.X - box.Min.X);
@@ -134,7 +135,7 @@ namespace Microsoft.Xna.Framework
                 return ContainmentType.Contains;
 
             //check if the distance from sphere center to frustrum face < radius
-            float dmin = 0f;
+            double dmin = 0;
             //TODO : calcul dmin
 
             if (dmin <= Radius * Radius)
@@ -263,8 +264,7 @@ namespace Microsoft.Xna.Framework
         /// <returns>The new <see cref="BoundingSphere"/>.</returns>
         public static BoundingSphere CreateFromPoints(IEnumerable<Vector3> points)
         {
-            // if (points == null )
-            //     throw new ArgumentNullException("points");
+            ArgumentNullException.ThrowIfNull(points);
 
             // From "Real-Time Collision Detection" (Page 89)
 
@@ -276,7 +276,7 @@ namespace Microsoft.Xna.Framework
             var maxz = -minx;
 
             // Find the most extreme points along the principle axis.
-            int numPoints = 0;
+            var numPoints = 0;
             foreach (var pt in points)
             {
                 ++numPoints;
@@ -378,14 +378,14 @@ namespace Microsoft.Xna.Framework
                 }
             }
             //else find center of new sphere and radius
-            float leftRadius = MathF.Max(original.Radius - distance, additional.Radius);
-            float Rightradius = MathF.Max(original.Radius + distance, additional.Radius);
-            ocenterToaCenter += (((leftRadius - Rightradius) / (2f * ocenterToaCenter.Length())) * ocenterToaCenter);//oCenterToResultCenter
+            float leftRadius = Math.Max(original.Radius - distance, additional.Radius);
+            float Rightradius = Math.Max(original.Radius + distance, additional.Radius);
+            ocenterToaCenter += (((leftRadius - Rightradius) / (2 * ocenterToaCenter.Length())) * ocenterToaCenter);//oCenterToResultCenter
 
             result = new BoundingSphere
             {
                 Center = original.Center + ocenterToaCenter,
-                Radius = (leftRadius + Rightradius) / 2f
+                Radius = (leftRadius + Rightradius) / 2
             };
         }
 
@@ -406,6 +406,7 @@ namespace Microsoft.Xna.Framework
         {
             if (obj is BoundingSphere sphere)
                 return this.Equals(sphere);
+
             return false;
         }
 
@@ -432,7 +433,9 @@ namespace Microsoft.Xna.Framework
         /// <param name="box">The box for testing.</param>
         /// <param name="result"><c>true</c> if <see cref="BoundingBox"/> intersects with this sphere; <c>false</c> otherwise. As an output parameter.</param>
         public void Intersects(ref BoundingBox box, out bool result)
-            => box.Intersects(ref this, out result);
+        {
+            box.Intersects(ref this, out result);
+        }
 
         /*
         TODO : Make the public bool Intersects(BoundingFrustum frustum) overload
@@ -466,7 +469,11 @@ namespace Microsoft.Xna.Framework
         public void Intersects(ref BoundingSphere sphere, out bool result)
         {
             Vector3.DistanceSquared(ref sphere.Center, ref Center, out float sqDistance);
-            result = (!(sqDistance > (sphere.Radius + Radius) * (sphere.Radius + Radius)));
+
+            if (sqDistance > (sphere.Radius + Radius) * (sphere.Radius + Radius))
+                result = false;
+            else
+                result = true;
         }
 
         /// <summary>
@@ -513,7 +520,9 @@ namespace Microsoft.Xna.Framework
         /// <param name="ray">The ray for testing.</param>
         /// <param name="result">Distance of ray intersection or <c>null</c> if there is no intersection as an output parameter.</param>
         public void Intersects(ref Ray ray, out float? result)
-            => ray.Intersects(ref this, out result);
+        {
+            ray.Intersects(ref this, out result);
+        }
 
         #endregion
 
@@ -533,14 +542,11 @@ namespace Microsoft.Xna.Framework
         /// <param name="matrix">The transformation <see cref="Matrix"/>.</param>
         /// <returns>Transformed <see cref="BoundingSphere"/>.</returns>
         public readonly BoundingSphere Transform(Matrix matrix)
-        {
-            BoundingSphere sphere = new()
+            => new()
             {
                 Center = Vector3.Transform(this.Center, matrix),
-                Radius = this.Radius * MathF.Sqrt(MathF.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), MathF.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))))
+                Radius = this.Radius * MathF.Sqrt(Math.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), Math.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))))
             };
-            return sphere;
-        }
 
         /// <summary>
         /// Creates a new <see cref="BoundingSphere"/> that contains a transformation of translation and scale from this sphere by the specified <see cref="Matrix"/>.
@@ -550,7 +556,7 @@ namespace Microsoft.Xna.Framework
         public readonly void Transform(ref Matrix matrix, out BoundingSphere result)
         {
             result.Center = Vector3.Transform(this.Center, matrix);
-            result.Radius = this.Radius * MathF.Sqrt(MathF.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), MathF.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))));
+            result.Radius = this.Radius * MathF.Sqrt(Math.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), Math.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))));
         }
 
         #endregion

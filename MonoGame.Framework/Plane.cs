@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 
 namespace Microsoft.Xna.Framework
 {
-    internal class PlaneHelper
+	internal class PlaneHelper
     {
         /// <summary>
         /// Returns a value indicating what side (positive/negative) of a plane a point is
@@ -27,8 +27,8 @@ namespace Microsoft.Xna.Framework
         /// <returns>The perpendicular distance from the point to the plane</returns>
         public static float PerpendicularDistance(ref Vector3 point, ref Plane plane)
             // dist = (ax + by + cz + d) / sqrt(a*a + b*b + c*c)
-            => MathF.Abs((plane.Normal.X * point.X + plane.Normal.Y * point.Y + plane.Normal.Z * point.Z)
-                         / MathF.Sqrt(plane.Normal.X * plane.Normal.X + plane.Normal.Y * plane.Normal.Y + plane.Normal.Z * plane.Normal.Z));
+            => (float)Math.Abs((plane.Normal.X * point.X + plane.Normal.Y * point.Y + plane.Normal.Z * point.Z)
+                                    / Math.Sqrt(plane.Normal.X * plane.Normal.X + plane.Normal.Y * plane.Normal.Y + plane.Normal.Z * plane.Normal.Z));
     }
 
     /// <summary>
@@ -86,7 +86,14 @@ namespace Microsoft.Xna.Framework
         /// <param name="b">A point the created <see cref="Plane"/> should contain.</param>
         /// <param name="c">A point the created <see cref="Plane"/> should contain.</param>
         public Plane(Vector3 a, Vector3 b, Vector3 c)
-            => D = -(Vector3.Dot((Normal = Vector3.Normalize(Vector3.Cross(b - a, c - a))), a));
+        {
+            Vector3 ab = b - a;
+            Vector3 ac = c - a;
+
+            Vector3 cross = Vector3.Cross(ab, ac);
+            Vector3.Normalize(ref cross, out Normal);
+            D = -(Vector3.Dot(Normal, a));
+        }
 
         /// <summary>
         /// Create a <see cref="Plane"/> with the first three values as the X, Y and Z
@@ -98,7 +105,9 @@ namespace Microsoft.Xna.Framework
         /// <param name="d">The distance to the origin.</param>
         public Plane(float a, float b, float c, float d)
             : this(new Vector3(a, b, c), d)
-        { }
+        {
+
+        }
 
         /// <summary>
         /// Create a <see cref="Plane"/> that contains the specified point and has the specified <see cref="Normal"/> vector.
@@ -149,7 +158,7 @@ namespace Microsoft.Xna.Framework
         /// plus the <see cref="D"/> value of this <see cref="Plane"/>.
         /// </returns>
         public readonly float DotCoordinate(Vector3 value)
-            => ((((this.Normal.X * value.X) + (this.Normal.Y * value.Y)) + (this.Normal.Z * value.Z)) + this.D);
+            =>  ((((this.Normal.X * value.X) + (this.Normal.Y * value.Y)) + (this.Normal.Z * value.Z)) + this.D);
 
         /// <summary>
         /// Get the dot product of a <see cref="Vector3"/> with
@@ -249,7 +258,7 @@ namespace Microsoft.Xna.Framework
         public void Normalize()
         {
             float length = Normal.Length();
-            float factor = 1f / length;
+            float factor =  1f / length;
             Vector3.Multiply(ref Normal, factor, out Normal);
             D *= factor;
         }
@@ -272,7 +281,8 @@ namespace Microsoft.Xna.Framework
         /// <param name="result">A normalized version of the specified <see cref="Plane"/>.</param>
         public static void Normalize(ref Plane value, out Plane result)
         {
-            float factor = 1f / value.Normal.Length();
+            float length = value.Normal.Length();
+            float factor =  1f / length;
             Vector3.Multiply(ref value.Normal, factor, out result.Normal);
             result.D = value.D * factor;
         }
@@ -343,7 +353,7 @@ namespace Microsoft.Xna.Framework
         /// The type of intersection of this <see cref="Plane"/> with the specified <see cref="BoundingBox"/>.
         /// </param>
         public void Intersects(ref BoundingBox box, out PlaneIntersectionType result)
-            => box.Intersects(ref this, out result);
+            => box.Intersects (ref this, out result);
 
         /// <summary>
         /// Check if this <see cref="Plane"/> intersects a <see cref="BoundingFrustum"/>.
@@ -379,18 +389,17 @@ namespace Microsoft.Xna.Framework
         {
             DotCoordinate(ref point, out float distance);
 
-            if (distance > 0f)
+            if (distance > 0)
                 return PlaneIntersectionType.Front;
 
-            if (distance < 0f)
+            if (distance < 0)
                 return PlaneIntersectionType.Back;
 
             return PlaneIntersectionType.Intersecting;
         }
 
         internal readonly string DebugDisplayString
-             =>
-             string.Concat(
+            =>  string.Concat(
                     this.Normal.DebugDisplayString, "  ",
                     this.D.ToString()
                     );
@@ -417,7 +426,7 @@ namespace Microsoft.Xna.Framework
         /// Returns a <see cref="System.Numerics.Plane"/>.
         /// </summary>
         public readonly System.Numerics.Plane ToNumerics()
-            => new(this.Normal.X, this.Normal.Y, this.Normal.Z, this.D);
+            => new (this.Normal.X, this.Normal.Y, this.Normal.Z, this.D);
 
         #endregion
 
@@ -428,7 +437,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         /// <param name="value">The converted value.</param>
         public static implicit operator Plane(System.Numerics.Plane value)
-            => new(value.Normal, value.D);
+            => new (value.Normal, value.D);
 
         #endregion
     }

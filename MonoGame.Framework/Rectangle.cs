@@ -17,7 +17,8 @@ namespace Microsoft.Xna.Framework
     {
         #region Private Fields
 
-        private static Rectangle emptyRectangle = new();
+        private static Rectangle emptyRectangle = new
+        ();
 
         #endregion
 
@@ -93,8 +94,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public Point Location
         {
-            readonly get
-                => new(this.X, this.Y);
+            readonly get => new (this.X, this.Y);
             set
             {
                 X = value.X;
@@ -107,8 +107,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public Point Size
         {
-            readonly get
-                => new(this.Width,this.Height);
+            readonly get => new (this.Width,this.Height);
             set
             {
                 Width = value.X;
@@ -131,7 +130,7 @@ namespace Microsoft.Xna.Framework
         #region Internal Properties
 
         internal readonly string DebugDisplayString
-                => string.Concat(
+            => string.Concat(
                     this.X, "  ",
                     this.Y, "  ",
                     this.Width, "  ",
