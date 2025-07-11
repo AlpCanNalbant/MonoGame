@@ -37,16 +37,7 @@ namespace Microsoft.Xna.Framework.Graphics
                         if (_bytecode != null)
                             return _bytecode;
 
-<<<<<<< HEAD
-                        var assembly = ReflectionHelpers.GetAssembly(typeof(EffectResource));
-
-                        var stream = assembly.GetManifestResourceStream(_name);
-                        using var ms = new MemoryStream();
-                        stream.CopyTo(ms);
-                        _bytecode = ms.ToArray();
-=======
                         _bytecode = PlatformGetBytecode(_name);
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
                     }
                 }
 
@@ -56,7 +47,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 #if !NATIVE
         private static byte[] PlatformGetBytecode(string name)
-        {            
+        {
             var assembly = ReflectionHelpers.GetAssembly(typeof(EffectResource));
 
             var stream = assembly.GetManifestResourceStream(name);

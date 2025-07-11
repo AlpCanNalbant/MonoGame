@@ -352,7 +352,6 @@ namespace Microsoft.Xna.Framework.Content
             }
             if (!disposed)
             {
-<<<<<<< HEAD
                 // On some platforms, name and slash direction matter.
                 // We store the asset by a /-separating key rather than how the
                 // path to the file was passed to us to avoid
@@ -360,14 +359,6 @@ namespace Microsoft.Xna.Framework.Content
                 // different files. This matches stock XNA behavior.
                 // The dictionary will ignore case differences
                 var key = assetName.Replace('\\', '/');
-=======
-                throw new ObjectDisposedException("ContentManager");
-            }
-            if (Path.IsPathRooted(assetName))
-            {
-                throw new ContentLoadException("assetName '" + assetName + "' cannot be a rooted (absolute) path. Remove any leading drive letters (e.g. 'C:'), forward slashes or backslashes");
-            }
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
 
                 // Check for a previously loaded asset first
                 if (loadedAssets.TryGetValue(key, out object asset))
@@ -387,7 +378,6 @@ namespace Microsoft.Xna.Framework.Content
                 return result;
             }
 
-<<<<<<< HEAD
             throw new ObjectDisposedException("ContentManager");
         }
 
@@ -418,14 +408,6 @@ namespace Microsoft.Xna.Framework.Content
         // (WCS Edit) It's an overloaded method created to access the model file in the current class constructor in cases where we cannot store the asset in the base class while loading and sending the asset to the base constructor method.
         public virtual T Create<T>(string assetName, out T asset, bool cacheAsset = true)
             => asset = Create<T>(assetName, cacheAsset);
-=======
-            // Load the asset.
-            result = ReadAsset<T>(assetName, null);
-            loadedAssets[key] = result;
-
-            return result;
-		}
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
 
         /// <summary />
 		protected virtual Stream OpenStream(string assetName)
@@ -453,7 +435,6 @@ namespace Microsoft.Xna.Framework.Content
                 stream.Close();
                 stream = memStream;
 #endif
-<<<<<<< HEAD
             }
             catch (FileNotFoundException fileNotFound)
             {
@@ -470,24 +451,6 @@ namespace Microsoft.Xna.Framework.Content
             }
             return stream;
         }
-=======
-			}
-			catch (FileNotFoundException fileNotFound)
-			{
-				throw new ContentLoadException("The content file was not found.", fileNotFound);
-			}
-			catch (DirectoryNotFoundException directoryNotFound)
-			{
-				throw new ContentLoadException("The directory was not found.", directoryNotFound);
-			}
-			catch (Exception exception)
-			{
-				throw new ContentLoadException("Opening stream error.", exception);
-			}
-
-			return stream;
-		}
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
 
         /// <summary />
 		protected T ReadAsset<T>(string assetName, Action<IDisposable> recordDisposableObject)
@@ -550,15 +513,8 @@ namespace Microsoft.Xna.Framework.Content
                     throw;
             }
 
-<<<<<<< HEAD
             if (result == null)
                 throw new ContentLoadException("Could not load " + originalAssetName + " asset!");
-=======
-			if (result == null)
-            {
-				throw new ContentLoadException("Could not load " + originalAssetName + " asset!");
-            }
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
 
             return (T)result;
         }
@@ -735,17 +691,6 @@ namespace Microsoft.Xna.Framework.Content
         /// <see cref="IDisposable.Dispose">IDisposable.Dispose</see> method will be called before unloading.
         /// </remarks>
 		public virtual void Unload()
-<<<<<<< HEAD
-        {
-            // Look for disposable assets.
-            foreach (var disposable in disposableAssets)
-            {
-                if (disposable != null)
-                    disposable.Dispose();
-            }
-            disposableAssets.Clear();
-            loadedAssets.Clear();
-=======
 		{
 		    // Look for disposable assets.
 		    foreach (var disposable in disposableAssets)
@@ -757,7 +702,6 @@ namespace Microsoft.Xna.Framework.Content
 		    }
 			disposableAssets.Clear();
 		    loadedAssets.Clear();
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
         }
 
         /// <summary>

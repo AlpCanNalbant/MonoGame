@@ -91,7 +91,6 @@ namespace Microsoft.Xna.Framework
         public void Contains(ref BoundingBox box, out ContainmentType result)
             => result = Contains(box);
 
-<<<<<<< HEAD
         /// <summary>
         ///   Check if this <see cref="BoundingBox"/> contains a <see cref="BoundingFrustum"/>.
         /// </summary>
@@ -104,20 +103,6 @@ namespace Microsoft.Xna.Framework
         {
             //TODO: bad done here need a fix.
             //Because question is not frustum contain box but reverse and this is not the same
-=======
-        /// <summary>
-        ///   Determines if this <see cref="BoundingBox"/> contains or intersects with a specified <see cref="BoundingFrustum"/>.
-        ///   NOTE: This method may return false positives (indicating an intersection or containment when there is none)
-        ///   to improve performance. Use with caution if precision is critical.
-        /// </summary>
-        /// <param name="frustum">The <see cref="BoundingFrustum"/> to test for overlap.</param>
-        /// <returns>
-        ///   A <see cref="ContainmentType"/> value indicating whether this <see cref="BoundingBox"/>
-        ///   contains or intersects the <paramref name="frustum"/>.
-        /// </returns>
-        public ContainmentType Contains(BoundingFrustum frustum)
-        {
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
             int i;
             ContainmentType contained;
             Vector3[] corners = frustum.GetCorners();

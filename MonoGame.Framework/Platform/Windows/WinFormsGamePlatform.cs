@@ -69,18 +69,7 @@ namespace MonoGame.Framework
             => true;
 
         public override bool BeforeDraw(GameTime gameTime)
-<<<<<<< HEAD
             => true;
-=======
-        {
-#if GDKX
-            var device = Game.GraphicsDevice;
-            if (device != null)
-                device.PlatformPrepare(); // maybe add a Prepare() to GraphicsDevice, could be useful for other backend?
-#endif
-            return true;
-        }
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
 
         public override void EnterFullScreen()
         {

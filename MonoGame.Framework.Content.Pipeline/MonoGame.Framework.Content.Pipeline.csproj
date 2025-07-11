@@ -59,12 +59,8 @@
     </Reference>
   </ItemGroup>
 
-<<<<<<< HEAD
 
   <!-- <ItemGroup Condition="'$(SolutionName)' != 'MonoGame.Framework.WindowsDX'">
-=======
-  <ItemGroup>
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
     <ProjectReference Include="..\MonoGame.Framework\MonoGame.Framework.DesktopGL.csproj">
       <PrivateAssets>All</PrivateAssets>
     </ProjectReference>
@@ -75,15 +71,12 @@
     </ProjectReference>
   </ItemGroup> -->
 
-<<<<<<< HEAD
   <ItemGroup>
     <ProjectReference Include="..\MonoGame.Framework\MonoGame.Framework.WindowsDX.csproj">
       <PrivateAssets>All</PrivateAssets>
     </ProjectReference>
   </ItemGroup>
 
-=======
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
   <ItemGroup>
     <PackageReference Include="AssimpNetter" Version="5.4.3.3" />
     <PackageReference Include="BCnEncoder.Net" Version="2.1.0" />

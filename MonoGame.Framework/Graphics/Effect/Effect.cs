@@ -130,11 +130,7 @@ namespace Microsoft.Xna.Framework.Graphics
                 using var reader = new BinaryReader(stream);
                 // Create one.
                 cloneSource = new Effect(graphicsDevice);
-<<<<<<< HEAD
-                cloneSource.ReadEffect(reader);
-=======
                 cloneSource.ReadEffect(header, reader);
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
 
                 // Check file tail to ensure we parsed the content correctly.
                 var tail = reader.ReadInt32();
@@ -265,19 +261,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
         #region Effect File Reader
 
-<<<<<<< HEAD
-        private void ReadEffect(BinaryReader reader)
-        {
-            // TODO: Maybe we should be reading in a string
-            // table here to save some bytes in the file.
-
-=======
 		private void ReadEffect (MGFXHeader header, BinaryReader reader)
 		{
-			// TODO: Maybe we should be reading in a string 
+			// TODO: Maybe we should be reading in a string
 			// table here to save some bytes in the file.
-			
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
+
             ConstantBuffers = new ConstantBuffer[reader.ReadInt32()];
 
             for (var c = 0; c < ConstantBuffers.Length; c++)

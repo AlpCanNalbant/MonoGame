@@ -160,13 +160,8 @@ namespace Microsoft.Xna.Framework.Audio
         {
             if (_voice != null && SoundEffect.MasterVoice != null)
             {
-<<<<<<< HEAD
                 // Choose the correct buffer depending on if we are looped.
-                var buffer = _loop ? _effect._loopedBuffer : _effect._buffer;
-=======
-                // Choose the correct buffer depending on if we are looped.            
                 var buffer = _isLooped ? _effect._loopedBuffer : _effect._buffer;
->>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
 
                 if (_voice.State.BuffersQueued > 0)
                 {
