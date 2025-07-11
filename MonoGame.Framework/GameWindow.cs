@@ -34,13 +34,13 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public virtual bool AllowAltF4 { get { return _allowAltF4; } set { _allowAltF4 = value; } }
 
-#if WINDOWS || DESKTOPGL
         /// <summary>
         /// The location of this window on the desktop, eg: global coordinate space
         /// which stretches across all screens.
+        /// 
+        /// May be zero on platforms where it is not supported.
         /// </summary>
         public abstract Point Position { get; set; }
-#endif
 
 	    /// <summary>
 	    /// The display orientation on a mobile device.
@@ -123,7 +123,7 @@ namespace Microsoft.Xna.Framework
 	    /// </summary>
 		public event EventHandler<EventArgs> ScreenDeviceNameChanged;
 
-#if WINDOWS || DESKTOPGL|| ANGLE
+#if WINDOWS || DESKTOPGL|| ANGLE || NATIVE
 
         /// <summary>
 		/// Use this event to user text input.
@@ -228,7 +228,8 @@ namespace Microsoft.Xna.Framework
             EventHelpers.Raise(this, ScreenDeviceNameChanged, EventArgs.Empty);
 		}
 
-#if WINDOWS || DESKTOPGL || ANGLE
+#if WINDOWS || DESKTOPGL || ANGLE || NATIVE
+
 	    /// <summary>
 	    /// Called when the window receives text input. Raises the <see cref="TextInput"/> event.
 	    /// </summary>
@@ -266,17 +267,33 @@ namespace Microsoft.Xna.Framework
 
 #if DIRECTX && WINDOWS
         /// <summary>
-        /// Create a <see cref="GameWindow"/> based on the given <see cref="Game"/> and a fixed starting size.
+        /// Create an additional window. Only available in WindowsDX.
         /// </summary>
-        /// <param name="game">The <see cref="Game"/> to create the <see cref="GameWindow"/> for.</param>
-        /// <param name="width">Initial pixel width to set for the <see cref="GameWindow"/>.</param>
-        /// <param name="height">Initial pixel height to set for the <see cref="GameWindow"/>.</param>
-        public static GameWindow Create(Game game, int width, int height)
+        /// <param name="game">a reference to the game class.</param>
+        /// <param name="width">The width of the new window.</param>
+        /// <param name="height">The height of the new window.</param>
+        /// <param name="show">Display the window imediately. Optional<see cref="Show"/></param>
+        /// <remarks> The visibility default follows the upstream defaults. </remarks>
+        public static GameWindow Create(Game game, int width, int height, bool? show = null)
         {
             var window = new MonoGame.Framework.WinFormsGameWindow((MonoGame.Framework.WinFormsGamePlatform)game.Platform);
             window.Initialize(width, height);
+            if(show.HasValue)
+                window.Form.Visible = show.Value;
 
             return window;
+        }
+        
+        /// <summary>
+        /// Make a new window visible. Only available in WindowsDX.
+        /// </summary>
+        public void Show()
+        {
+            // sanity check for cast
+            if (this is MonoGame.Framework.WinFormsGameWindow)
+            {
+                ((MonoGame.Framework.WinFormsGameWindow)this).Form.Visible = true;
+            }
         }
 #endif
     }
