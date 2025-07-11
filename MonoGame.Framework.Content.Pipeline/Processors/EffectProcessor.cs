@@ -51,6 +51,9 @@ namespace Microsoft.Xna.Framework.Content.Pipeline.Processors
         public override CompiledEffectContent Process(EffectContent input, ContentProcessorContext context)
         {
             var mgfxc = Path.Combine(Path.GetDirectoryName(typeof(EffectProcessor).Assembly.Location), "mgfxc.dll");
+            if (!File.Exists(mgfxc))
+                throw new FileNotFoundException("The shader compiler mgfxc.dll was not found!", mgfxc);
+
             var sourceFile = input.Identity.SourceFilename;
             var destFile = Path.GetTempFileName();
             var arguments = "\"" + mgfxc + "\" \"" + sourceFile + "\" \"" + destFile + "\" /Profile:" + GetProfileForPlatform(context.TargetPlatform);
@@ -95,6 +98,12 @@ namespace Microsoft.Xna.Framework.Content.Pipeline.Processors
                 case TargetPlatform.RaspberryPi:
                 case TargetPlatform.Web:
                     return "OpenGL";
+                case TargetPlatform.DesktopVK:
+                    return "Vulkan";
+                case TargetPlatform.WindowsGDK:
+                case TargetPlatform.XboxOne:
+                case TargetPlatform.XboxSeries:
+                    return "GDK";
             }
 
             return platform.ToString();

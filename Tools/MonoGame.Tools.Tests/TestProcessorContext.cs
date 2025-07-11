@@ -1,11 +1,12 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGame.Tests.ContentPipeline
 {
-    class TestProcessorContext : ContentProcessorContext
+    class TestProcessorContext : ContentProcessorContext, IDisposable
     {
         private readonly TargetPlatform _targetPlatform;
         private readonly string _outputFilename;
@@ -17,6 +18,8 @@ namespace MonoGame.Tests.ContentPipeline
             _targetPlatform = targetPlatform;
             _outputFilename = outputFilename;
             _logger = new TestContentBuildLogger();
+            var id = Guid.NewGuid().ToString();
+            IntermediateDirectory = Path.Combine("test", id);
         }
 
         public override string BuildConfiguration
@@ -24,10 +27,7 @@ namespace MonoGame.Tests.ContentPipeline
             get { return "Debug"; }
         }
 
-        public override string IntermediateDirectory
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override string IntermediateDirectory { get; }
 
         public override ContentBuildLogger Logger
         {
@@ -79,7 +79,17 @@ namespace MonoGame.Tests.ContentPipeline
             return default(TOutput);
         }
 
+        public override TOutput BuildAndLoadAsset<TInput, TOutput>(ExternalReference<TInput> sourceAsset, IContentImporter importer, IContentProcessor processor)
+        {
+            return default(TOutput);
+        }
+
         public override ExternalReference<TOutput> BuildAsset<TInput, TOutput>(ExternalReference<TInput> sourceAsset, string processorName, OpaqueDataDictionary processorParameters, string importerName, string assetName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExternalReference<TOutput> BuildAsset<TInput, TOutput>(ExternalReference<TInput> sourceAsset, IContentImporter importer, IContentProcessor processor, string assetName = null)
         {
             throw new NotImplementedException();
         }
@@ -106,6 +116,28 @@ namespace MonoGame.Tests.ContentPipeline
             }
 
             throw new NotImplementedException();
+        }
+
+        public override TOutput Convert<TInput, TOutput>(TInput input, IContentProcessor processor)
+        {
+            // MaterialProcessor essentially transforms its
+            // input and returns it... not a copy.  So this
+            // seems like a reasonable shortcut for testing.
+            if (typeof(TOutput) == typeof(MaterialContent) && typeof(TInput).IsAssignableFrom(typeof(MaterialContent)))
+                return (TOutput)((object)input);
+
+            if (processor != null)
+            {
+                return (TOutput)processor.Process(input, this);
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            if (Directory.Exists(IntermediateDirectory))
+                Directory.Delete(IntermediateDirectory, recursive: true);
         }
     }
 }

@@ -1,47 +1,36 @@
+using Cake.Git;
+using Microsoft.VisualBasic;
+using System.Text.RegularExpressions;
 
 namespace BuildScripts;
 
 public enum ProjectType
 {
+    Extension,
     Framework,
     Tools,
     Templates,
+    Tests,
     ContentPipeline,
+    DevTools,
     MGCBEditor,
     MGCBEditorLauncher
 }
 
 public class BuildContext : FrostingContext
 {
+    public static string VersionBase = "3.8.4";
+    public static readonly Regex VersionRegex = new(@"^v\d+.\d+.\d+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     public static readonly string DefaultRepositoryUrl = "https://github.com/MonoGame/MonoGame";
-    public static readonly string DefaultBaseVersion = "3.8.2";
 
     public BuildContext(ICakeContext context) : base(context)
     {
         var repositoryUrl = context.Argument("build-repository", DefaultRepositoryUrl);
         var buildConfiguration = context.Argument("build-configuration", "Release");
-        BuildOutput = context.Argument("build-output", "artifacts");
-        Version = context.Argument("build-version", DefaultBaseVersion + ".1-develop");
+        BuildOutput = context.Argument("build-output", "Artifacts");
         NuGetsDirectory = $"{BuildOutput}/NuGet/";
 
-        if (context.BuildSystem().IsRunningOnGitHubActions)
-        {
-            var workflow = context.BuildSystem().GitHubActions.Environment.Workflow;
-            repositoryUrl = $"https://github.com/{workflow.Repository}";
-
-            if (workflow.Repository != "MonoGame/MonoGame")
-            {
-                Version = $"{DefaultBaseVersion}.{workflow.RunNumber}-{workflow.RepositoryOwner}";
-            }
-            else if (workflow.RefType == GitHubActionsRefType.Branch && workflow.RefName != "refs/heads/master")
-            {
-                Version = $"{DefaultBaseVersion}.{workflow.RunNumber}-develop";
-            }
-            else
-            {
-                Version = $"{DefaultBaseVersion}.{workflow.RunNumber}";
-            }
-        }
+        Version = CalculateVersion(context);
 
         DotNetMSBuildSettings = new DotNetMSBuildSettings();
         DotNetMSBuildSettings.WithProperty("Version", Version);
@@ -88,6 +77,13 @@ public class BuildContext : FrostingContext
             Configuration = buildConfiguration,
             SelfContained = false
         };
+        // SelfContained needs to be default for MacOS
+        DotNetPublishSettingsForMac = new DotNetPublishSettings
+        {
+            MSBuildSettings = DotNetMSBuildSettings,
+            Verbosity = DotNetVerbosity.Minimal,
+            Configuration = buildConfiguration
+        };
 
         Console.WriteLine($"Version: {Version}");
         Console.WriteLine($"RepositoryUrl: {repositoryUrl}");
@@ -98,7 +94,7 @@ public class BuildContext : FrostingContext
             // SET MGFXC_WINE_PATH for building shaders on macOS and Linux
             System.Environment.SetEnvironmentVariable("MGFXC_WINE_PATH", context.EnvironmentVariable("HOME") + "/.winemonogame");
         }
-        
+
         context.CreateDirectory(BuildOutput);
     }
 
@@ -116,18 +112,23 @@ public class BuildContext : FrostingContext
 
     public DotNetPublishSettings DotNetPublishSettings { get; }
 
+    public DotNetPublishSettings DotNetPublishSettingsForMac { get; }
+
     public MSBuildSettings MSBuildSettings { get; }
 
     public MSBuildSettings MSPackSettings { get; }
 
     public string GetProjectPath(ProjectType type, string id = "") => type switch
     {
+        ProjectType.Extension => $"Templates/{id}/{id}.csproj",
         ProjectType.Framework => $"MonoGame.Framework/MonoGame.Framework.{id}.csproj",
         ProjectType.Tools => $"Tools/{id}/{id}.csproj",
-        ProjectType.Templates => $"Templates/{id}/{id}.csproj",
+        ProjectType.Templates => $"external/MonoGame.Templates/CSharp/{id}.csproj",
+        ProjectType.Tests => $"Tests/{id}.csproj",
         ProjectType.ContentPipeline => "MonoGame.Framework.Content.Pipeline/MonoGame.Framework.Content.Pipeline.csproj",
+        ProjectType.DevTools => "src/MonoGame.Framework.DevTools/MonoGame.Framework.DevTools.csproj",
         ProjectType.MGCBEditor => $"Tools/MonoGame.Content.Builder.Editor/MonoGame.Content.Builder.Editor.{id}.csproj",
-		ProjectType.MGCBEditorLauncher => $"Tools/MonoGame.Content.Builder.Editor.Launcher/MonoGame.Content.Builder.Editor.Launcher.{id}.csproj",
+        ProjectType.MGCBEditorLauncher => $"Tools/MonoGame.Content.Builder.Editor.Launcher/MonoGame.Content.Builder.Editor.Launcher.{id}.csproj",
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
 
@@ -144,5 +145,48 @@ public class BuildContext : FrostingContext
         );
 
         return processOutput.Any(match => match.StartsWith($"{workload} "));
+    }
+
+    public static string CalculateVersion(ICakeContext context)
+    {
+        var tags = GitAliases.GitTags(context, ".");
+        foreach (var tag in tags)
+        {
+            if (VersionRegex.IsMatch(tag.FriendlyName))
+            {
+                VersionBase = tag.FriendlyName[1..];
+            }
+        }
+
+        if (context.BuildSystem().IsRunningOnGitHubActions)
+        {
+            var workflow = context.BuildSystem().GitHubActions.Environment.Workflow;
+
+            if (workflow.Repository != "MonoGame/MonoGame")
+            {
+                return $"{VersionBase}.{workflow.RunNumber}-{workflow.RepositoryOwner}";
+            }
+            else if (workflow.RefType == GitHubActionsRefType.Tag)
+            {
+                var baseVersion = workflow.RefName.Split('/')[^1];
+                if (!VersionRegex.IsMatch(baseVersion))
+                    throw new Exception($"Invalid tag: {baseVersion}");
+
+                VersionBase = baseVersion[1..];
+                return VersionBase;
+            }
+            else if (workflow.RefType == GitHubActionsRefType.Branch && workflow.RefName != "refs/heads/master")
+            {
+                return $"{VersionBase}.{workflow.RunNumber}-develop";
+            }
+            else
+            {
+                return $"{VersionBase}.{workflow.RunNumber}";
+            }
+        }
+        else
+        {
+            return context.Argument("build-version", VersionBase + ".1-develop");
+        }
     }
 }

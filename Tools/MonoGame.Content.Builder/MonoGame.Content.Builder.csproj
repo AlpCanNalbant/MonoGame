@@ -16,8 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <ProjectReference Include="..\..\MonoGame.Framework\MonoGame.Framework.WindowsDX.csproj">
       <PrivateAssets>All</PrivateAssets>
+=======
+    <ProjectReference Include="..\..\MonoGame.Framework\MonoGame.Framework.DesktopGL.csproj">
+      <IncludeAssets>compile</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+>>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
     </ProjectReference>
     <ProjectReference Include="..\..\MonoGame.Framework.Content.Pipeline\MonoGame.Framework.Content.Pipeline.csproj" />
   </ItemGroup>

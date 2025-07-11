@@ -53,8 +53,10 @@ namespace Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler
             '5', // PlayStation5
             'O', // XboxOne
             'S', // Nintendo Switch
-            'G', // Google Stadia
             'b', // WebAssembly and Bridge.NET
+            'V', // DesktopVK (Vulkan)
+            'G', // Windows GDK
+            's', // Xbox Series
         };
 
         /// <summary>
@@ -121,7 +123,7 @@ namespace Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler
         /// <summary>
         /// All content has been written, so now finalize the header, footer and anything else that needs finalizing.
         /// </summary>
-        public override void Flush()
+        internal void FinalizeContent()
         {
             // Write shared resources to the end of body stream
             WriteSharedResources();
@@ -171,7 +173,6 @@ namespace Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler
                         compressedStream.Dispose();
                 }
             }
-            base.Flush();
         }
 
         /// <summary>

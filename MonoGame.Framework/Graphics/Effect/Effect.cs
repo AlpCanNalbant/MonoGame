@@ -29,7 +29,13 @@ namespace Microsoft.Xna.Framework.Graphics
             /// We should avoid supporting old versions for very long if at all
             /// as users should be rebuilding content when packaging their game.
             /// </remarks>
-            public const int MGFXVersion = 10;
+            public const int MGFXVersion = 11;
+
+            /// <summary>
+            /// This is the minimum version of MGFX file we can support
+            /// for cases when the changes are backwards compatible.
+            /// </summary>
+            public const int MGFXMinVersion = 10;
 
             public int Signature;
             public int Version;
@@ -124,7 +130,11 @@ namespace Microsoft.Xna.Framework.Graphics
                 using var reader = new BinaryReader(stream);
                 // Create one.
                 cloneSource = new Effect(graphicsDevice);
+<<<<<<< HEAD
                 cloneSource.ReadEffect(reader);
+=======
+                cloneSource.ReadEffect(header, reader);
+>>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
 
                 // Check file tail to ensure we parsed the content correctly.
                 var tail = reader.ReadInt32();
@@ -150,7 +160,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
             if (header.Signature != MGFXHeader.MGFXSignature)
                 throw new Exception("This does not appear to be a MonoGame MGFX file!");
-            if (header.Version < MGFXHeader.MGFXVersion)
+            if (header.Version < MGFXHeader.MGFXMinVersion)
                 throw new Exception("This MGFX effect is for an older release of MonoGame and needs to be rebuilt.");
             if (header.Version > MGFXHeader.MGFXVersion)
                 throw new Exception("This MGFX effect seems to be for a newer release of MonoGame.");
@@ -255,11 +265,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
         #region Effect File Reader
 
+<<<<<<< HEAD
         private void ReadEffect(BinaryReader reader)
         {
             // TODO: Maybe we should be reading in a string
             // table here to save some bytes in the file.
 
+=======
+		private void ReadEffect (MGFXHeader header, BinaryReader reader)
+		{
+			// TODO: Maybe we should be reading in a string 
+			// table here to save some bytes in the file.
+			
+>>>>>>> c1ae93de0ab4fd0b60ebf4a693bc4ea5fb69a791
             ConstantBuffers = new ConstantBuffer[reader.ReadInt32()];
 
             for (var c = 0; c < ConstantBuffers.Length; c++)
@@ -288,7 +306,7 @@ namespace Microsoft.Xna.Framework.Graphics
             _shaders = new Shader[reader.ReadInt32()];
 
             for (var s = 0; s < _shaders.Length; s++)
-                _shaders[s] = new Shader(GraphicsDevice, reader);
+                _shaders[s] = new Shader(GraphicsDevice, header.Version, reader);
 
             Parameters = ReadParameters(reader);
 

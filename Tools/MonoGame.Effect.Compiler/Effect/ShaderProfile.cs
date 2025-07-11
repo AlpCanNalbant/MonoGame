@@ -5,10 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.Xna.Framework.Content.Pipeline;
+using System.Threading;
 using MonoGame.Effect.TPGParser;
 
 namespace MonoGame.Effect
@@ -27,6 +29,8 @@ namespace MonoGame.Effect
         public static readonly ShaderProfile OpenGL = FromName("OpenGL");
 
         public static readonly ShaderProfile DirectX_11 = FromName("DirectX_11");
+
+        public static readonly ShaderProfile Vulkan = FromName("Vulkan");
 
         /// <summary>
         /// Returns all the loaded shader profiles.
